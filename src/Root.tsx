@@ -1,5 +1,6 @@
 import React from "react";
-import { Composition, Series } from "remotion";
+import { CalculateMetadataFunction, Composition } from "remotion";
+import { getVideoMetadata } from "@remotion/media-utils";
 import { THEME } from "./data/theme";
 import {
   SCENE1_CONFIG,
@@ -10,6 +11,7 @@ import {
   SCENE5_CONFIG,
   SCENE6_CONFIG,
   SCENE7_CONFIG,
+  SCENE8_GAME_TRAILER_CONFIG,
 } from "./data/config";
 import { Scene1_Reddit } from "./compositions/Scene1_Reddit";
 import { Scene2_Gameplay } from "./compositions/Scene2_Gameplay";
@@ -19,45 +21,25 @@ import { Scene4_Outro } from "./compositions/Scene4_Outro";
 import { Scene5_List } from "./compositions/Scene5_List";
 import { Scene6_BeforeAfter } from "./compositions/Scene6_BeforeAfter";
 import { Scene7_InstagramText } from "./compositions/Scene7_Instagram";
+import { Scene8_GameTrailer } from "./compositions/Scene8_GameTrailer";
 
-const PixelPickedTrailer: React.FC = () => (
-  <Series>
-    <Series.Sequence durationInFrames={SCENE1_CONFIG.duration}>
-      <Scene1_Reddit />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={SCENE2_CONFIG.duration}>
-      <Scene2_Gameplay />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={SCENE2B_CONFIG.duration}>
-      <Scene2B_GameOfWeek />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={SCENE3_CONFIG.duration}>
-      <Scene3_Mockup />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={SCENE6_CONFIG.duration}>
-      <Scene6_BeforeAfter />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={SCENE5_CONFIG.duration}>
-      <Scene5_List />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={SCENE4_CONFIG.duration}>
-      <Scene4_Outro />
-    </Series.Sequence>
-    <Series.Sequence durationInFrames={SCENE7_CONFIG.duration}>
-      <Scene7_InstagramText />
-    </Series.Sequence>
-  </Series>
-);
+const calculateTrailerMetadata: CalculateMetadataFunction<
+  Record<string, unknown>
+> = async () => {
+  const cfg = SCENE8_GAME_TRAILER_CONFIG;
+  const metadata = await getVideoMetadata(cfg.trailer.src);
+  const trailerFrames = Math.ceil(
+    metadata.durationInSeconds * cfg.canvas.fps,
+  );
 
-const TOTAL =
-  SCENE1_CONFIG.duration +
-  SCENE2_CONFIG.duration +
-  SCENE2B_CONFIG.duration +
-  SCENE3_CONFIG.duration +
-  SCENE4_CONFIG.duration +
-  SCENE5_CONFIG.duration +
-  SCENE6_CONFIG.duration +
-  SCENE7_CONFIG.duration;
+  return {
+    durationInFrames:
+      trailerFrames + (cfg.outro.enabled ? cfg.outro.duration : 0),
+    fps: cfg.canvas.fps,
+    width: cfg.canvas.width,
+    height: cfg.canvas.height,
+  };
+};
 
 export const Root: React.FC = () => {
   const { width, height, fps } = THEME.canvas;
@@ -65,11 +47,10 @@ export const Root: React.FC = () => {
     <>
       <Composition
         id="PixelPickedTrailer"
-        component={PixelPickedTrailer}
-        durationInFrames={TOTAL}
-        fps={fps}
-        width={width}
-        height={height}
+        component={Scene8_GameTrailer}
+        calculateMetadata={calculateTrailerMetadata}
+        width={SCENE8_GAME_TRAILER_CONFIG.canvas.width}
+        height={SCENE8_GAME_TRAILER_CONFIG.canvas.height}
       />
       <Composition
         id="Scene1-Reddit"

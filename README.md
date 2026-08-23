@@ -1,6 +1,6 @@
 # PixelPicked Remotion Content Engine
 
-Modular, JSON-driven Remotion template system for vertical short-form content (1080×1920 @ 60fps).  
+Modular, JSON-driven Remotion template system for vertical short-form content (1080×1920 @ 60fps) and landscape YouTube game trailers (1920×1080 @ 60fps).
 White / premium minimal aesthetic. Apple keynote × SaaS trailer × editorial motion.
 
 ---
@@ -39,6 +39,7 @@ src/
 ## Configuring Scenes
 
 **Everything** is driven by `src/data/config.ts`. Edit that file to change:
+- The landscape trailer source, fit, watermark, and outro
 - Background video paths
 - Reddit post content (subreddit, username, post text, highlight sentence)
 - Game metadata
@@ -46,6 +47,11 @@ src/
 - Feature showcase labels and laptop UI
 - List items with icons, highlights, subtitles
 - Before/After card content
+
+`PixelPickedTrailer` renders the single landscape trailer configured in
+`SCENE8_GAME_TRAILER_CONFIG`. Its duration is read from the actual video file,
+then the configured outro duration is appended automatically. Older scenes
+remain available as individual compositions but are not part of the final.
 
 **Global design tokens** live in `src/data/theme.ts`:
 - Colors (bg, primary, accent, etc.)
@@ -61,6 +67,7 @@ Place your media in the `public/` folder:
 
 | File | Used by |
 |------|---------|
+| `public/bison.mp4` | Final landscape game trailer |
 | `public/scene1_bg.mp4` | Scene 1 — Reddit background |
 | `public/scene2_gameplay.mp4` | Scene 2 — Gameplay video |
 | `public/mockup1.png` `mockup2.png` `mockup3.png` | Scene 3 — Phone carousel |
@@ -111,6 +118,14 @@ Config: title, 3 items with icons, highlight words, subtitles.
 ### Scene 6 — Before / After
 White background, stacked or split comparison cards.  
 Config: before/after items with icons, optional background video at low opacity.
+
+### Scene 8 — Landscape Game Trailer
+YouTube-ready 16:9 gameplay trailer with a persistent PixelPicked logo in the
+top-right and a closing “Check out the game at PixelPicked” card with a link.
+Configure the source video, canvas, fit, proportional hook/title timing,
+watermark visibility, colors, and outro in `SCENE8_GAME_TRAILER_CONFIG`. Put the trailer in `public/` and set
+`trailer.src` with `staticFile("your-trailer.mp4")`. The final duration adjusts
+to the real source length automatically.
 
 ---
 

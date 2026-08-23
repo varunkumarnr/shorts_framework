@@ -304,6 +304,75 @@ export const SCENE7_CONFIG = {
   duration: 1200,
 };
 
+/**
+ * Landscape YouTube game-trailer template.
+ *
+ * The composition reads the source video's real duration and appends the outro
+ * automatically. Only the outro duration is configured manually.
+ */
+export type GameTrailerTextPosition = "top-left" | "center" | "bottom-left";
+
+export interface GameTrailerTextOverlay {
+  enabled: boolean;
+  /** Start and end as a percentage of the source trailer length (0 to 1). */
+  startAt: number;
+  endAt: number;
+  heading: string;
+  subheading?: string;
+  position: GameTrailerTextPosition;
+  accentColor: string;
+}
+
+export const SCENE8_GAME_TRAILER_CONFIG = {
+  canvas: {
+    width: 1920,
+    height: 1080,
+    fps: 60,
+  },
+  backgroundColor: "#050505",
+  trailer: {
+    src: staticFile("bison.mp4"), // change trailer here
+    fit: "cover" as "cover" | "contain",
+    scale: 1,
+  },
+  watermark: {
+    enabled: true,
+    light: true,
+  },
+  textOverlays: {
+    /** Set to false to hide both the hook and title. */
+    enabled: true,
+    hook: {
+      enabled: true, // false if your dont want
+      startAt: 0.02,
+      endAt: 0.34,
+      heading: "ONE OF YOU IS THE BISON.", // here
+      subheading: "Everyone else just wants a photo.", // here the hool
+      position: "bottom-left",
+      accentColor: "#EAB308",
+    } as GameTrailerTextOverlay,
+    title: {
+      enabled: true, // false if your dont want
+      startAt: 0.55,
+      endAt: 0.86,
+      heading: "BISON ATTACK!", // content second
+      subheading: "A fast online party game for 2–8 players.", // content second
+      position: "top-left",
+      accentColor: "#EAB308",
+    } as GameTrailerTextOverlay,
+  },
+  outro: {
+    enabled: true,
+    duration: 240,
+    headline: "Check out Bison Attack at PixelPicked", // outro content
+    link: "pixelpicked.com/game/100Wxnx9TtE/bison-attack",
+    backgroundColor: "#F7F7F4",
+    textColor: "#111111",
+    accentColor: "#EAB308",
+    logoSize: 112,
+  },
+};
+
 export const ANALYTICS_METRICS = [
   { label: "DAU", value: "4,821", change: "↑ +14% WoW" },
   { label: "Session Len", value: "8.2m", change: "↑ +2.1m" },
