@@ -89,6 +89,10 @@ npx remotion render src/index.ts Scene3_Mockup out/scene3.mp4
 npx remotion render src/index.ts Scene4_Outro out/scene4.mp4
 npx remotion render src/index.ts Scene5_List out/scene5.mp4
 npx remotion render src/index.ts Scene6_BeforeAfter out/scene6.mp4
+npx remotion render src/index.ts BisonAttack-InstagramCarousel out/bison-carousel.mp4
+npx remotion render src/index.ts BisonAttack-VideoCarousel out/bison-video-carousel.mp4
+npx remotion still src/index.ts PixelPicked-Top3-Story out/current-launches.png
+npx remotion still src/index.ts PixelPicked-LastWeek-Winners out/last-week-winners.png
 ```
 
 ---
@@ -126,6 +130,46 @@ Configure the source video, canvas, fit, proportional hook/title timing,
 watermark visibility, colors, and outro in `SCENE8_GAME_TRAILER_CONFIG`. Put the trailer in `public/` and set
 `trailer.src` with `staticFile("your-trailer.mp4")`. The final duration adjusts
 to the real source length automatically.
+
+### Scene 9 — Configurable Game Success-Story Carousel
+
+Reusable 1080×1080 editorial format for stories about how well-known games
+were built, overcame early struggles, and became successful. It is generated
+as one `hookSlide`, any number of `contentSlides`, and one final PixelPicked
+`ctaSlide`. Every slide accepts an image or video plus configurable eyebrow,
+headline, body, detail, crop, font sizes, and colors. Use `gameName` for the
+story subject, such as `"Angry Birds"` or `"Flappy Bird"`. Edit
+`SCENE9_BISON_CAROUSEL_CONFIG` for the current example, or
+pass `hookSlide`, `contentSlides`, `ctaSlide`, `gameName`, and `slideDuration`
+as Remotion input props. Adding or removing context slides automatically
+changes the composition duration and slide indicators.
+
+To use a still image, set `media.type` to `"image"` and `media.src` to
+`staticFile("your-image.png")` in the config. Render a still from the middle of
+each slide (the default slide length is 180 frames) for a native Instagram
+carousel.
+
+### Scene 10 — Bison Attack Video Carousel
+
+The earlier 1080×1350 full-bleed motion-carousel style, preserved as a separate
+composition. It uses animated gameplay media, editorial text overlays, slide
+indicators, the shared PixelPicked watermark, and a branded final CTA. Configure
+it independently in `SCENE10_BISON_VIDEO_CAROUSEL_CONFIG`.
+
+### Scene 11 — Live Current-Week Launches
+
+Dynamic 1080×1350 Instagram post. Every render fetches
+`https://api.pixelpicked.com/api/launches/week/current`, sorts by `voteCount`,
+uses the top three `gameBanner` images, totals all votes, and derives the date
+range and campaign day. `SCENE11_LAUNCH_TOP3_STORY_CONFIG` is retained as an
+offline fallback if the endpoint is unavailable.
+
+### Scene 12 — Last Week Winners
+
+Reusable 1080×1350 Instagram post for the completed launch-week podium. Its
+data comes from `https://api.pixelpicked.com/api/home` → `lastWeekResults` and
+is stored independently in `SCENE12_LAST_WEEK_WINNERS_CONFIG`, so refreshing
+last week's results never changes the current launch-campaign post.
 
 ---
 

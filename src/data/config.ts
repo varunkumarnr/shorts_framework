@@ -331,8 +331,8 @@ export const SCENE8_GAME_TRAILER_CONFIG = {
   },
   backgroundColor: "#050505",
   trailer: {
-    src: staticFile("bison.mp4"), // change trailer here
-    fit: "cover" as "cover" | "contain",
+    src: staticFile("dino.mp4"), // change trailer here
+    fit: "contain" as "cover" | "contain",
     scale: 1,
   },
   watermark: {
@@ -346,8 +346,8 @@ export const SCENE8_GAME_TRAILER_CONFIG = {
       enabled: true, // false if your dont want
       startAt: 0.02,
       endAt: 0.34,
-      heading: "ONE OF YOU IS THE BISON.", // here
-      subheading: "Everyone else just wants a photo.", // here the hool
+      heading: "A TIME-TRAVEL GLITCH CHANGED EVERYTHING.", // here
+      subheading: "Jax wanted to fix his past. Instead, he became a T-Rex.", // here the hool
       position: "bottom-left",
       accentColor: "#EAB308",
     } as GameTrailerTextOverlay,
@@ -355,8 +355,8 @@ export const SCENE8_GAME_TRAILER_CONFIG = {
       enabled: true, // false if your dont want
       startAt: 0.55,
       endAt: 0.86,
-      heading: "BISON ATTACK!", // content second
-      subheading: "A fast online party game for 2–8 players.", // content second
+      heading: "DINO WITH A GUN", // content second
+      subheading: "Blast zombies, robots, and monsters in this roguelike survivor RPG.", // content second
       position: "top-left",
       accentColor: "#EAB308",
     } as GameTrailerTextOverlay,
@@ -364,13 +364,470 @@ export const SCENE8_GAME_TRAILER_CONFIG = {
   outro: {
     enabled: true,
     duration: 240,
-    headline: "Check out Bison Attack at PixelPicked", // outro content
-    link: "pixelpicked.com/game/100Wxnx9TtE/bison-attack",
+    headline: "Check out Dino with a Gun at PixelPicked", // outro content
+    link: "pixelpicked.com/game/3ZxBrufxvqH/dino-with-a-gun",
     backgroundColor: "#F7F7F4",
     textColor: "#111111",
     accentColor: "#EAB308",
     logoSize: 112,
   },
+};
+
+export type InstagramCarouselLayout = "cover" | "left" | "split" | "cta";
+
+export interface InstagramCarouselHeadlineSegment {
+  text: string;
+  color?: string;
+}
+
+export type InstagramCarouselMedia = {
+  type: "image" | "video";
+  /** Use staticFile("your-file.png") or staticFile("your-file.mp4"). */
+  src: string;
+  /** Only used for video media. */
+  startFrom?: number;
+  fit?: "cover" | "contain";
+  /** CSS object-position, for example "center", "50% 30%", or "left top". */
+  position?: string;
+  /** Preserve crisp edges when scaling low-resolution pixel artwork. */
+  pixelated?: boolean;
+} | {
+  /** PixelPicked-branded artwork used for the final CTA slide. */
+  type: "brand";
+  backgroundColor?: string;
+  foregroundColor?: string;
+  accentColors?: [string, string, string];
+};
+
+export interface InstagramCarouselSlide {
+  layout: InstagramCarouselLayout;
+  /** Image or video displayed in the top half of this slide. */
+  media: InstagramCarouselMedia;
+  eyebrow: string;
+  headline: string;
+  /** Optional individually colored headline sections. Supports newlines. */
+  headlineSegments?: InstagramCarouselHeadlineSegment[];
+  body?: string;
+  detail?: string;
+  accentColor?: string;
+  secondaryAccentColor?: string;
+  /** Set false when a slide should omit the playful shapes and arrows. */
+  decorations?: boolean;
+  headlineSize?: number;
+  bodySize?: number;
+  panelBackground?: string;
+  textColor?: string;
+}
+
+/** Input accepted by the reusable game success-story carousel. */
+export interface InstagramEditorialCarouselProps
+  extends Record<string, unknown> {
+  /** Always rendered first. */
+  hookSlide?: InstagramCarouselSlide;
+  /** Add, remove, or reorder as many context slides as needed. */
+  contentSlides?: InstagramCarouselSlide[];
+  /** Always rendered last. */
+  ctaSlide?: InstagramCarouselSlide;
+  /** Story subject shown in the bottom-right, e.g. "Flappy Bird". */
+  gameName?: string;
+  /** Frames per slide. Defaults to the configured value below. */
+  slideDuration?: number;
+}
+
+export const SCENE9_BISON_CAROUSEL_CONFIG = {
+  canvas: {
+    width: 1080,
+    height: 1080,
+    fps: 60,
+  },
+  slideDuration: 180,
+  transitionDuration: 20,
+  layout: {
+    topMediaHeight: 540,
+    panelBackground: "#050505",
+    dividerColor: "rgba(255,255,255,0.88)",
+  },
+  branding: {
+    enabled: true,
+    light: true,
+  },
+  game: {
+    name: "Flappy Bird",
+    creator: "Dong Nguyen",
+    platform: "Mobile game success story",
+    pixelPickedUrl: "pixelpicked.com",
+  },
+  /**
+   * Every carousel is generated in this order:
+   * hookSlide -> contentSlides (any amount) -> ctaSlide.
+   *
+   * Each media block can use a still image instead:
+   * media: {
+   *   type: "image",
+   *   src: staticFile("your-slide-image.png"),
+   *   fit: "cover",
+   *   position: "50% 35%",
+   * }
+  */
+  hookSlide: {
+    layout: "cover",
+    media: {
+      type: "image",
+      src: staticFile("dong-nguyen-smiling.png"),
+      fit: "cover",
+      position: "50% 35%",
+    },
+    eyebrow: "THE FLAPPY BIRD STORY",
+    headline: "ONE DEVELOPER BUILT A GLOBAL PHENOMENON — THEN DELETED IT.",
+    headlineSegments: [
+      { text: "ONE DEVELOPER BUILT\n", color: "#FFFFFF" },
+      { text: "A GLOBAL PHENOMENON —\n", color: "#C7F000" },
+      { text: "THEN DELETED IT.", color: "#FF4D8D" },
+    ],
+    accentColor: "#FF4D8D",
+    secondaryAccentColor: "#C7F000",
+    decorations: false,
+    headlineSize: 61,
+    panelBackground: "linear-gradient(135deg, #160914 0%, #050505 72%)",
+  } as InstagramCarouselSlide,
+  contentSlides: [
+    {
+      layout: "left",
+      media: {
+        type: "image",
+        src: staticFile("flappy-bird-gameplay.png"),
+        fit: "cover",
+        position: "center",
+        pixelated: true,
+      },
+      eyebrow: "ONE SIMPLE IDEA",
+      headline: "TAP TO FLY. DON'T HIT THE PIPES. 8-BIT GRAPHICS. PUNISHING DIFFICULTY. BUILT IN JUST 2–3 DAYS.",
+      headlineSegments: [
+        { text: "TAP TO FLY.\n", color: "#FFFFFF" },
+        { text: "DON'T HIT THE PIPES.\n", color: "#C7F000" },
+        { text: "8-BIT GRAPHICS.\nPUNISHING DIFFICULTY.\n", color: "#FFFFFF" },
+        { text: "BUILT IN JUST 2–3 DAYS.", color: "#8B5CF6" },
+      ],
+      accentColor: "#C7F000",
+      secondaryAccentColor: "#8B5CF6",
+      decorations: false,
+      headlineSize: 54,
+      panelBackground: "linear-gradient(135deg, #101608 0%, #050505 72%)",
+    },
+    {
+      layout: "split",
+      media: {
+        type: "image",
+        src: staticFile("flappy-bird-icon.png"),
+        fit: "cover",
+        position: "center",
+        pixelated: true,
+      },
+      eyebrow: "THEN EVERYTHING CHANGED",
+      headline: "50+ MILLION DOWNLOADS. THE MOST DOWNLOADED GAME IN THE WORLD. REPORTEDLY $50,000 A DAY.",
+      headlineSegments: [
+        { text: "50+ MILLION\n", color: "#A78BFA" },
+        { text: "DOWNLOADS.\n", color: "#FFFFFF" },
+        { text: "THE MOST DOWNLOADED\nGAME IN THE WORLD.\n", color: "#FF4D8D" },
+        { text: "REPORTEDLY $50,000 A DAY.", color: "#FFFFFF" },
+      ],
+      accentColor: "#A78BFA",
+      secondaryAccentColor: "#FF4D8D",
+      decorations: false,
+      headlineSize: 52,
+      panelBackground: "linear-gradient(135deg, #100B1D 0%, #050505 72%)",
+    },
+    {
+      layout: "left",
+      media: {
+        type: "image",
+        src: staticFile("dong-nguyen-interview.png"),
+        fit: "cover",
+        position: "50% 34%",
+      },
+      eyebrow: "THEN HE DID THE UNTHINKABLE",
+      headline: "HE DELETED IT. AT ITS PEAK. HE SAID IT HAD BECOME AN ADDICTIVE PROBLEM. THOUSANDS A DAY. GONE.",
+      headlineSegments: [
+        { text: "HE DELETED IT.\n", color: "#FF6B6B" },
+        { text: "AT ITS PEAK.\n", color: "#FFFFFF" },
+        { text: "HE SAID IT HAD BECOME\nAN ADDICTIVE PROBLEM.\n", color: "#C7F000" },
+        { text: "THOUSANDS A DAY. GONE.", color: "#FF6B6B" },
+      ],
+      accentColor: "#FF6B6B",
+      secondaryAccentColor: "#C7F000",
+      decorations: false,
+      headlineSize: 50,
+      panelBackground: "linear-gradient(135deg, #1A0C0C 0%, #050505 72%)",
+    },
+  ] as InstagramCarouselSlide[],
+  ctaSlide: {
+    layout: "cta",
+    media: {
+      type: "brand",
+      backgroundColor: "#F4F4F0",
+      foregroundColor: "#050505",
+      accentColors: ["#FF4D8D", "#C7F000", "#8B5CF6"],
+    },
+    eyebrow: "MOBILE GAMES SHOULD SURPRISE US AGAIN",
+    headline: "BUILD WHAT'S NEXT. FIND IT EARLY. DISCOVER. PLAY. FOLLOW. SHAPE. PIXELPICKED.COM",
+    headlineSegments: [
+      { text: "BUILD WHAT'S NEXT.\n", color: "#FFFFFF" },
+      { text: "FIND IT EARLY.\n", color: "#C7F000" },
+      { text: "DISCOVER. PLAY.\nFOLLOW. SHAPE.\n", color: "#FFFFFF" },
+      { text: "PIXELPICKED.COM", color: "#FF4D8D" },
+    ],
+    accentColor: "#FF4D8D",
+    secondaryAccentColor: "#C7F000",
+    decorations: false,
+    headlineSize: 52,
+    panelBackground: "linear-gradient(135deg, #170B20 0%, #050505 74%)",
+  } as InstagramCarouselSlide,
+  get slides(): InstagramCarouselSlide[] {
+    return [this.hookSlide, ...this.contentSlides, this.ctaSlide];
+  },
+  get duration() {
+    return this.slides.length * this.slideDuration;
+  },
+};
+
+/**
+ * Portrait motion-carousel version. This is intentionally independent from
+ * Scene 9 so its gameplay clips and copy can be changed without affecting the
+ * square image carousel.
+ */
+export const SCENE10_BISON_VIDEO_CAROUSEL_CONFIG = {
+  canvas: {
+    width: 1080,
+    height: 1350,
+    fps: 60,
+  },
+  slideDuration: 180,
+  transitionDuration: 20,
+  backgroundColor: "#050505",
+  branding: {
+    enabled: true,
+    light: true,
+  },
+  slides: [
+    {
+      layout: "cover",
+      media: {
+        type: "video",
+        src: staticFile("bison.mp4"),
+        startFrom: 60,
+        fit: "cover",
+        position: "center",
+      },
+      eyebrow: "BISON ATTACK!",
+      headline: "ONE OF YOU\nIS THE BISON.",
+      body: "Everyone else just wants a photo.",
+      accentColor: "#EAB308",
+    },
+    {
+      layout: "left",
+      media: {
+        type: "video",
+        src: staticFile("bison.mp4"),
+        startFrom: 360,
+        fit: "cover",
+        position: "center",
+      },
+      eyebrow: "GET THE SHOT",
+      headline: "THE CLOSER\nTHE PHOTO,\nTHE BIGGER\nTHE SCORE.",
+      body: "Sneak through a pixel-art Yellowstone and risk everything for the perfect selfie.",
+      accentColor: "#EAB308",
+    },
+    {
+      layout: "split",
+      media: {
+        type: "video",
+        src: staticFile("bison.mp4"),
+        startFrom: 660,
+        fit: "cover",
+        position: "center",
+      },
+      eyebrow: "THEN RUN",
+      headline: "THE BISON'S\nJOB IS SIMPLE:\nFLATTEN\nEVERYBODY.",
+      body: "Every round, one player becomes the wild bison.",
+      accentColor: "#EAB308",
+    },
+    {
+      layout: "left",
+      media: {
+        type: "video",
+        src: staticFile("bison.mp4"),
+        startFrom: 960,
+        fit: "cover",
+        position: "center",
+      },
+      eyebrow: "FAST · CHAOTIC · SOCIAL",
+      headline: "2–8 PLAYERS.\nONE WILD PARK.",
+      body: "Cross-play · Random parks · Robot teammates · No account needed",
+      detail: "Free to play",
+      accentColor: "#EAB308",
+    },
+    {
+      layout: "cta",
+      media: {
+        type: "video",
+        src: staticFile("bison.mp4"),
+        startFrom: 1260,
+        fit: "cover",
+        position: "center",
+      },
+      eyebrow: "DISCOVERED ON PIXELPICKED",
+      headline: "READY TO RISK\nTHE SELFIE?",
+      body: "Play Bison Attack! and discover more underrated games on PixelPicked.",
+      detail: "PIXELPICKED.COM/GAME/100WXNX9TTE/BISON-ATTACK",
+      accentColor: "#EAB308",
+    },
+  ] as InstagramCarouselSlide[],
+  get duration() {
+    return this.slides.length * this.slideDuration;
+  },
+};
+
+/**
+ * Live launch-week leaderboard Story. Update only this object when the
+ * rankings change; the composition reads all visible copy and crop values
+ * from here.
+ */
+export const SCENE11_LAUNCH_TOP3_STORY_CONFIG = {
+  canvas: {
+    width: 1080,
+    height: 1350,
+    fps: 60,
+  },
+  duration: 1,
+  campaign: {
+    date: "AUG 23–29, 2026",
+    status: "LIVE RANKING",
+    headline: "THIS WEEK'S\nTOP 3 GAMES",
+    subheadline: "Picked by the PixelPicked community — so far.",
+    totalGames: "19 games",
+    totalVotes: "77 votes",
+    cta: "VOTE NOW",
+    link: "pixelpicked.com/launch-campaign",
+  },
+  colors: {
+    background: "#050505",
+    surface: "#121212",
+    text: "#FFFFFF",
+    muted: "#A3A3A3",
+    accent: "#F5F5F5",
+    second: "#CFCFCF",
+    third: "#909090",
+  },
+  products: [
+    {
+      rank: 1,
+      name: "Virtual DOMination",
+      description:
+        "Code duels in JS, Python, C, C++ and Rust. Pick a faction, take the map.",
+      category: "RELEASE · EDUCATIONAL · TRIVIA",
+      votes: 7,
+      accent: "#67E8F9",
+      artwork: staticFile("virtual-domination-art.png"),
+      status: "LEADING",
+    },
+    {
+      rank: 2,
+      name: "Ball Sort Master",
+      description:
+        "Sort colourful balls, solve tricky puzzles and relax with endless fun.",
+      category: "RELEASE · PUZZLE",
+      votes: 6,
+      accent: "#FB923C",
+      artwork: staticFile("ball-sort-master-art.png"),
+      status: "TIED",
+    },
+    {
+      rank: 3,
+      name: "Deckweave: Deckbuilding Game",
+      description:
+        "A roguelike campaign with hard levels, bosses, Weavestones and new symbols.",
+      category: "UPDATE · CARD",
+      votes: 5,
+      accent: "#A78BFA",
+      artwork: staticFile("deckweave-art.png"),
+      status: "TIED",
+    },
+  ],
+};
+
+/**
+ * Last-week podium returned by:
+ * https://api.pixelpicked.com/api/home -> lastWeekResults
+ *
+ * Keep this independent from Scene 11 so current-week launch artwork and
+ * previous-week winner artwork can be rendered and updated separately.
+ */
+export const SCENE12_LAST_WEEK_WINNERS_CONFIG = {
+  canvas: {
+    width: 1080,
+    height: 1350,
+    fps: 60,
+  },
+  duration: 1,
+  apiSource: "https://api.pixelpicked.com/api/home",
+  launchWeekId: "2026-W34",
+  copy: {
+    topRight: "FINAL RESULTS",
+    date: "AUG 16–22, 2026",
+    eyebrow: "LAST WEEK ON PIXELPICKED",
+    headlineTop: "LAST WEEK'S",
+    headlineBottom: "WINNERS",
+    subheadline: "The games you voted to the top.",
+    totalVotes: "94 podium votes",
+    cta: "PLAY THE WINNER",
+    link: "pixelpicked.com/game/vKNbqVILTm9/tiltrics",
+  },
+  colors: {
+    background: "#050505",
+    surface: "#121212",
+    text: "#FFFFFF",
+    muted: "#A3A3A3",
+    border: "rgba(255,255,255,0.30)",
+    winnerBorder: "rgba(255,255,255,0.88)",
+  },
+  results: [
+    {
+      launchShortId: "5ryCgT6vNp5",
+      gameId: "vKNbqVILTm9",
+      gameSlug: "tiltrics",
+      gameName: "Tiltrics",
+      gameGenre: ["Arcade", "Casual", "Indie", "Puzzle", "Strategy"],
+      tagline:
+        'TILT. DODGE. FIRE. Tiltrics 1.2 now has a new "Bullets" chapter.',
+      voteCount: 34,
+      finalRank: 1,
+      artwork: staticFile("tiltrics-winner.jpg"),
+    },
+    {
+      launchShortId: "3kVzeFaicms",
+      gameId: "100Wxnx9TtE",
+      gameSlug: "bison-attack",
+      gameName: "Bison Attack!",
+      gameGenre: ["Casual", "Arcade", "Party"],
+      tagline:
+        "A fast online party game where tourists photograph a wild bison.",
+      voteCount: 31,
+      finalRank: 2,
+      artwork: staticFile("bison-attack-runner-up.jpg"),
+    },
+    {
+      launchShortId: "23HAGOtRRVR",
+      gameId: "4VV4eDCRbJ2",
+      gameSlug: "wickgrid-daily-logic-puzzle",
+      gameName: "Wickgrid: Daily Logic Puzzle",
+      gameGenre: ["Puzzle"],
+      tagline:
+        "Light the grid. One connected chain. No guessing. Pure deduction.",
+      voteCount: 29,
+      finalRank: 3,
+      artwork: staticFile("wickgrid-third-place.jpg"),
+    },
+  ],
 };
 
 export const ANALYTICS_METRICS = [

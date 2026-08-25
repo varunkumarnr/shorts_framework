@@ -12,10 +12,7 @@ import {
   GameTrailerTextOverlay,
   SCENE8_GAME_TRAILER_CONFIG,
 } from "../data/config";
-import {
-  PixelPickedLogo,
-  SceneBranding,
-} from "../components/shared";
+import { PixelPickedLogo, SceneBranding } from "../components/shared";
 import { THEME } from "../data/theme";
 
 const positionStyles: Record<
@@ -224,7 +221,9 @@ export const Scene8_GameTrailer: React.FC = () => {
   const trailerDuration = Math.max(1, durationInFrames - outroDuration);
 
   return (
-    <AbsoluteFill style={{ background: cfg.backgroundColor, overflow: "hidden" }}>
+    <AbsoluteFill
+      style={{ background: cfg.backgroundColor, overflow: "hidden" }}
+    >
       <Sequence durationInFrames={trailerDuration}>
         <AbsoluteFill>
           <Video
