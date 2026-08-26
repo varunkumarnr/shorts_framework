@@ -392,6 +392,7 @@ export type InstagramCarouselLayout = "cover" | "left" | "split" | "cta";
 export interface InstagramCarouselHeadlineSegment {
   text: string;
   color?: string;
+  fontWeight?: number;
 }
 
 export type InstagramCarouselMedia =
@@ -430,6 +431,9 @@ export interface InstagramCarouselSlide {
   /** Set false when a slide should omit the playful shapes and arrows. */
   decorations?: boolean;
   headlineSize?: number;
+  /** Optional font and weight overrides exposed by Creator Studio. */
+  fontFamily?: string;
+  fontWeight?: number;
   bodySize?: number;
   panelBackground?: string;
   textColor?: string;

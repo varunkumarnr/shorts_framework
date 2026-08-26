@@ -69,13 +69,25 @@
               <div class="slide-card"><div class="card-heading"><strong>Hook slide</strong><span>Required</span></div>
                 <div class="field"><label>Image</label><input type="file" name="carousel_hook_image" accept="image/*" /></div>
                 <div class="field"><label>Bold hook</label><textarea name="carousel_hook">ONE SIMPLE IDEA BECAME A GLOBAL PHENOMENON. 🤯</textarea></div>
-                <div class="field"><label>Orange highlight text</label><input name="carousel_hook_highlight" value="GLOBAL PHENOMENON" /></div>
+                <div class="field"><label>Important text</label><input name="carousel_hook_highlight" value="GLOBAL PHENOMENON" /></div>
+                <div class="type-controls">
+                  <div class="field"><label>Important-text color</label><input type="color" name="carousel_hook_color" value="#FF8A1F" /></div>
+                  <div class="field"><label>Font</label><select name="carousel_hook_font"><option value="Impact, 'Arial Narrow', sans-serif">Impact</option><option value="'Arial Narrow', Arial, sans-serif">Arial Narrow</option><option value="Inter, Arial, sans-serif">Inter</option><option value="Georgia, serif">Georgia</option></select></div>
+                  <div class="field"><label>All text</label><select name="carousel_hook_weight"><option value="900">Bold</option><option value="500">Regular</option></select></div>
+                  <div class="field"><label>Important text</label><select name="carousel_hook_highlight_weight"><option value="900">Bold</option><option value="500">Regular</option></select></div>
+                </div>
               </div>
               <div id="carousel-slides"></div>
               <button type="button" class="secondary" id="add-slide">＋ Add story slide</button>
               <div class="section-title compact"><div><span>CTA</span><h2>Final slide</h2></div></div>
               <div class="field"><label>CTA text</label><textarea name="carousel_cta">Build what's next. Find it early. Discover, play, follow and shape it at PixelPicked.com.</textarea></div>
-              <div class="field"><label>Orange highlight text</label><input name="carousel_cta_highlight" value="PixelPicked.com" /></div>
+              <div class="field"><label>Important text</label><input name="carousel_cta_highlight" value="PixelPicked.com" /></div>
+              <div class="type-controls">
+                <div class="field"><label>Important-text color</label><input type="color" name="carousel_cta_color" value="#FF8A1F" /></div>
+                <div class="field"><label>Font</label><select name="carousel_cta_font"><option value="'Arial Narrow', Arial, sans-serif">Arial Narrow</option><option value="Impact, 'Arial Narrow', sans-serif">Impact</option><option value="Inter, Arial, sans-serif">Inter</option><option value="Georgia, serif">Georgia</option></select></div>
+                <div class="field"><label>All text</label><select name="carousel_cta_weight"><option value="500">Regular</option><option value="900">Bold</option></select></div>
+                <div class="field"><label>Important text</label><select name="carousel_cta_highlight_weight"><option value="900">Bold</option><option value="500">Regular</option></select></div>
+              </div>
             </section>
 
             <section class="format-panel" data-panel="launch">
@@ -97,6 +109,11 @@
               <div class="preview-logo">PP<span>.</span></div>
               <h3>Ready to create</h3>
               <p>Complete the fields, upload your media, and render.</p>
+            </div>
+            <div id="carousel-preview-nav" class="carousel-preview-nav hidden">
+              <button type="button" id="preview-prev" aria-label="Previous slide">←</button>
+              <strong id="preview-slide-label">Slide 1 of 5</strong>
+              <button type="button" id="preview-next" aria-label="Next slide">→</button>
             </div>
             <div id="render-status" class="render-status hidden">
               <div class="progress"><i></i></div><p>Preparing render…</p><pre></pre>

@@ -4,6 +4,8 @@ const navButtons = [...document.querySelectorAll(".nav")];
 const title = document.querySelector("#page-title");
 const previewFormat = document.querySelector("#preview-format");
 const previewCard = document.querySelector("#preview-card");
+const carouselPreviewNav = document.querySelector("#carousel-preview-nav");
+const previewSlideLabel = document.querySelector("#preview-slide-label");
 const status = document.querySelector("#render-status");
 const progress = status.querySelector(".progress i");
 const statusText = status.querySelector("p");
@@ -13,12 +15,59 @@ const renderButton = document.querySelector(".render-button");
 const renderLabel = document.querySelector("#render-label");
 let activeFormat = "trailer";
 let carouselCount = 0;
+let carouselPreviewIndex = 0;
+const previewObjectUrls = new WeakMap();
 
 const formatMeta = {
   trailer: ["Game trailer", "MP4 · 1920 × 1080", ""],
   top3: ["Top 3 games", "MP4 · 1080 × 1920", "portrait"],
   carousel: ["Carousel", "PNG SET · 1080 × 1080", "square"],
   launch: ["Launch campaign", "PNG · 1080 × 1350", "portrait"],
+};
+
+const escapeHtml = (text) => String(text).replace(/[&<>'"]/g, (character) => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;",
+}[character]));
+
+const highlightedHtml = (text, highlight, color = "#FF8A1F", highlightWeight = 900) => {
+  const source = String(text || "");
+  const needle = String(highlight || "");
+  const index = needle ? source.toLowerCase().indexOf(needle.toLowerCase()) : -1;
+  if (index < 0) return escapeHtml(source);
+  return `${escapeHtml(source.slice(0, index))}<em style="color:${escapeHtml(color)};font-weight:${Number(highlightWeight)}">${escapeHtml(source.slice(index, index + needle.length))}</em>${escapeHtml(source.slice(index + needle.length))}`;
+};
+
+const objectUrl = (selectedFile) => {
+  if (!selectedFile) return "";
+  if (!previewObjectUrls.has(selectedFile)) previewObjectUrls.set(selectedFile, URL.createObjectURL(selectedFile));
+  return previewObjectUrls.get(selectedFile);
+};
+
+const emptyPreview = () => {
+  previewCard.innerHTML = `<div class="preview-logo">PP<span>.</span></div><h3>Ready to create</h3><p>Complete the fields, upload your media, and render.</p>`;
+};
+
+const carouselPreviewSlides = () => [
+  { type: "hook", image: file("carousel_hook_image"), text: value("carousel_hook"), highlight: value("carousel_hook_highlight"), color: value("carousel_hook_color"), font: value("carousel_hook_font"), weight: value("carousel_hook_weight"), highlightWeight: value("carousel_hook_highlight_weight") },
+  ...[...document.querySelectorAll("[data-carousel-index]")].map((card) => {
+    const index = card.dataset.carouselIndex;
+    return { type: "story", image: file(`carousel_${index}_image`), text: value(`carousel_${index}_headline`), highlight: value(`carousel_${index}_highlight`), color: value(`carousel_${index}_color`), font: value(`carousel_${index}_font`), weight: value(`carousel_${index}_weight`), highlightWeight: value(`carousel_${index}_highlight_weight`) };
+  }),
+  { type: "cta", text: value("carousel_cta"), highlight: value("carousel_cta_highlight"), color: value("carousel_cta_color"), font: value("carousel_cta_font"), weight: value("carousel_cta_weight"), highlightWeight: value("carousel_cta_highlight_weight") },
+];
+
+const renderCarouselPreview = () => {
+  if (activeFormat !== "carousel") return;
+  const slides = carouselPreviewSlides();
+  carouselPreviewIndex = Math.max(0, Math.min(carouselPreviewIndex, slides.length - 1));
+  const slide = slides[carouselPreviewIndex];
+  const gameName = value("carousel_game") || "Your Game";
+  const dots = slides.map((_, index) => `<i class="${index === carouselPreviewIndex ? "active" : ""}"></i>`).join("");
+  const media = slide.type === "cta"
+    ? `<div class="carousel-live-media"><div class="carousel-live-cta-logo"><span>PP<span class="dot">.</span></span>PixelPicked.</div></div>`
+    : `<div class="carousel-live-media">${slide.image ? `<img src="${objectUrl(slide.image)}" alt="Preview" />` : `<div class="empty-media">Choose an image to preview</div>`}<div class="carousel-live-brand"><i></i>PixelPicked</div></div>`;
+  previewCard.innerHTML = `<div class="carousel-live ${slide.type}">${media}<div class="carousel-live-divider"></div><div class="carousel-live-mark">PP</div><div class="carousel-live-copy"><h4 style="font-family:${escapeHtml(slide.font)};font-weight:${Number(slide.weight)}">${highlightedHtml(slide.text, slide.highlight, slide.color, slide.highlightWeight)}</h4></div><div class="carousel-live-footer"><div class="carousel-live-dots">${dots}</div><div class="carousel-live-index">${slide.type === "cta" ? "PIXELPICKED" : escapeHtml(gameName)} · ${String(carouselPreviewIndex + 1).padStart(2, "0")}</div></div></div>`;
+  previewSlideLabel.textContent = `Slide ${carouselPreviewIndex + 1} of ${slides.length}`;
 };
 
 const switchFormat = (format) => {
@@ -30,6 +79,9 @@ const switchFormat = (format) => {
   previewFormat.textContent = output;
   previewCard.className = `preview-card ${shape}`.trim();
   renderLabel.textContent = `Render ${name.toLowerCase()} only`;
+  carouselPreviewNav.classList.toggle("hidden", format !== "carousel");
+  if (format === "carousel") renderCarouselPreview();
+  else emptyPreview();
   outputs.innerHTML = "";
 };
 
@@ -71,12 +123,35 @@ const addCarouselSlide = () => {
     <div class="card-heading"><strong>Story slide ${index + 2}</strong><button type="button" class="remove-slide">Remove</button></div>
     <div class="field"><label>Image</label><input type="file" name="carousel_${index}_image" accept="image/*" /></div>
     <div class="field"><label>Slide text</label><textarea name="carousel_${index}_headline">Add the next part of the story.</textarea></div>
-    <div class="field"><label>Orange highlight text</label><input name="carousel_${index}_highlight" placeholder="Important phrase" /></div>`;
-  card.querySelector(".remove-slide").addEventListener("click", () => card.remove());
+    <div class="field"><label>Important text</label><input name="carousel_${index}_highlight" placeholder="Important phrase" /></div>
+    <div class="type-controls">
+      <div class="field"><label>Important-text color</label><input type="color" name="carousel_${index}_color" value="#FF8A1F" /></div>
+      <div class="field"><label>Font</label><select name="carousel_${index}_font"><option value="'Arial Narrow', Arial, sans-serif">Arial Narrow</option><option value="Impact, 'Arial Narrow', sans-serif">Impact</option><option value="Inter, Arial, sans-serif">Inter</option><option value="Georgia, serif">Georgia</option></select></div>
+      <div class="field"><label>All text</label><select name="carousel_${index}_weight"><option value="500">Regular</option><option value="900">Bold</option></select></div>
+      <div class="field"><label>Important text</label><select name="carousel_${index}_highlight_weight"><option value="900">Bold</option><option value="500">Regular</option></select></div>
+    </div>`;
+  card.querySelector(".remove-slide").addEventListener("click", () => {
+    card.remove();
+    renderCarouselPreview();
+  });
   carouselContainer.append(card);
+  renderCarouselPreview();
 };
 document.querySelector("#add-slide").addEventListener("click", addCarouselSlide);
 addCarouselSlide(); addCarouselSlide(); addCarouselSlide();
+
+document.querySelector("#preview-prev").addEventListener("click", () => {
+  const count = carouselPreviewSlides().length;
+  carouselPreviewIndex = (carouselPreviewIndex - 1 + count) % count;
+  renderCarouselPreview();
+});
+document.querySelector("#preview-next").addEventListener("click", () => {
+  const count = carouselPreviewSlides().length;
+  carouselPreviewIndex = (carouselPreviewIndex + 1) % count;
+  renderCarouselPreview();
+});
+form.addEventListener("input", renderCarouselPreview);
+form.addEventListener("change", renderCarouselPreview);
 
 const launchContainer = document.querySelector("#launch-products");
 [1, 2, 3].forEach((rank) => {
@@ -106,16 +181,22 @@ const upload = async (selectedFile) => {
   return result.src;
 };
 
-const segments = (text, highlight, uppercase = false) => {
+const segments = (text, highlight, options = {}) => {
+  const {
+    uppercase = false,
+    color = "#FF8A1F",
+    baseWeight = 500,
+    highlightWeight = 900,
+  } = options;
   const source = uppercase ? text.toUpperCase() : text;
   const needle = uppercase ? highlight.toUpperCase() : highlight;
-  if (!needle) return [{ text: source, color: "#FFFFFF" }];
+  if (!needle) return [{ text: source, color: "#FFFFFF", fontWeight: baseWeight }];
   const index = source.toLowerCase().indexOf(needle.toLowerCase());
-  if (index < 0) return [{ text: source, color: "#FFFFFF" }];
+  if (index < 0) return [{ text: source, color: "#FFFFFF", fontWeight: baseWeight }];
   return [
-    { text: source.slice(0, index), color: "#FFFFFF" },
-    { text: source.slice(index, index + needle.length), color: "#FF8A1F" },
-    { text: source.slice(index + needle.length), color: "#FFFFFF" },
+    { text: source.slice(0, index), color: "#FFFFFF", fontWeight: baseWeight },
+    { text: source.slice(index, index + needle.length), color, fontWeight: highlightWeight },
+    { text: source.slice(index + needle.length), color: "#FFFFFF", fontWeight: baseWeight },
   ].filter((part) => part.text);
 };
 
@@ -149,9 +230,12 @@ const buildTop3 = async () => {
 const slideFromCard = async (card) => {
   const index = card.dataset.carouselIndex;
   const headline = value(`carousel_${index}_headline`);
+  const color = value(`carousel_${index}_color`);
+  const fontWeight = Number(value(`carousel_${index}_weight`));
   return {
     layout: "left", media: { type: "image", src: await upload(file(`carousel_${index}_image`)), fit: "cover", position: "center" },
-    headline, headlineSegments: segments(headline, value(`carousel_${index}_highlight`)), accentColor: "#FF8A1F", decorations: false,
+    headline, headlineSegments: segments(headline, value(`carousel_${index}_highlight`), { color, baseWeight: fontWeight, highlightWeight: Number(value(`carousel_${index}_highlight_weight`)) }), accentColor: color, decorations: false,
+    fontFamily: value(`carousel_${index}_font`), fontWeight,
     headlineSize: 48, panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)",
   };
 };
@@ -159,13 +243,19 @@ const slideFromCard = async (card) => {
 const buildCarousel = async () => {
   const hook = value("carousel_hook");
   const cta = value("carousel_cta");
+  const hookColor = value("carousel_hook_color");
+  const hookWeight = Number(value("carousel_hook_weight"));
+  const ctaColor = value("carousel_cta_color");
+  const ctaWeight = Number(value("carousel_cta_weight"));
   return {
     gameName: value("carousel_game"), slideDuration: frames(value("carousel_seconds") || 3, 60),
     hookSlide: { layout: "cover", media: { type: "image", src: await upload(file("carousel_hook_image")), fit: "cover", position: "center" }, headline: hook,
-      headlineSegments: segments(hook, value("carousel_hook_highlight"), true), accentColor: "#FF8A1F", decorations: false, headlineSize: 66, panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)" },
+      headlineSegments: segments(hook, value("carousel_hook_highlight"), { uppercase: true, color: hookColor, baseWeight: hookWeight, highlightWeight: Number(value("carousel_hook_highlight_weight")) }), accentColor: hookColor, decorations: false, headlineSize: 66,
+      fontFamily: value("carousel_hook_font"), fontWeight: hookWeight, panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)" },
     contentSlides: await Promise.all([...document.querySelectorAll("[data-carousel-index]")].map(slideFromCard)),
     ctaSlide: { layout: "cta", media: { type: "brand", backgroundColor: "#F4F4F0", foregroundColor: "#050505", accentColors: ["#FF4D8D", "#C7F000", "#8B5CF6"] },
-      headline: cta, headlineSegments: segments(cta, value("carousel_cta_highlight")), accentColor: "#FF8A1F", decorations: false, headlineSize: 48, panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)" },
+      headline: cta, headlineSegments: segments(cta, value("carousel_cta_highlight"), { color: ctaColor, baseWeight: ctaWeight, highlightWeight: Number(value("carousel_cta_highlight_weight")) }), accentColor: ctaColor, decorations: false, headlineSize: 48,
+      fontFamily: value("carousel_cta_font"), fontWeight: ctaWeight, panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)" },
   };
 };
 

@@ -60,9 +60,9 @@ const EditorialText: React.FC<{
     >
       <div
         style={{
-          fontFamily: isHook ? HOOK_FONT : STORY_FONT,
+          fontFamily: slide.fontFamily ?? (isHook ? HOOK_FONT : STORY_FONT),
           fontSize: slide.headlineSize ?? headlineSize,
-          fontWeight: isHook ? 900 : 500,
+          fontWeight: slide.fontWeight ?? (isHook ? 900 : 500),
           fontStretch: "condensed",
           letterSpacing: isHook ? -1.8 : -1.2,
           lineHeight: isHook ? 0.94 : 1.03,
@@ -74,7 +74,13 @@ const EditorialText: React.FC<{
       >
         {slide.headlineSegments?.length
           ? slide.headlineSegments.map((segment, index) => (
-              <span key={`${segment.text}-${index}`} style={{ color: segment.color }}>
+              <span
+                key={`${segment.text}-${index}`}
+                style={{
+                  color: segment.color,
+                  fontWeight: segment.fontWeight ?? "inherit",
+                }}
+              >
                 {segment.text}
               </span>
             ))
