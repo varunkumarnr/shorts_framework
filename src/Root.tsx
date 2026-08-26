@@ -13,6 +13,7 @@ import {
   SCENE7_CONFIG,
   SCENE8_GAME_TRAILER_CONFIG,
   SCENE9_BISON_CAROUSEL_CONFIG,
+  SCENE9_ANGRY_BIRDS_CAROUSEL_CONFIG,
   SCENE10_BISON_VIDEO_CAROUSEL_CONFIG,
   SCENE11_LAUNCH_TOP3_STORY_CONFIG,
   SCENE12_LAST_WEEK_WINNERS_CONFIG,
@@ -258,6 +259,14 @@ export const Root: React.FC = () => {
         id="BisonAttack-InstagramCarousel"
         component={Scene9_BisonCarousel}
         calculateMetadata={calculateEditorialCarouselMetadata}
+        width={SCENE9_BISON_CAROUSEL_CONFIG.canvas.width}
+        height={SCENE9_BISON_CAROUSEL_CONFIG.canvas.height}
+      />
+      <Composition
+        id="AngryBirds-InstagramCarousel"
+        component={Scene9_BisonCarousel}
+        calculateMetadata={calculateEditorialCarouselMetadata}
+        defaultProps={SCENE9_ANGRY_BIRDS_CAROUSEL_CONFIG}
         width={SCENE9_BISON_CAROUSEL_CONFIG.canvas.width}
         height={SCENE9_BISON_CAROUSEL_CONFIG.canvas.height}
       />

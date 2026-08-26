@@ -305,7 +305,14 @@ export const BgVideo: React.FC<{
   startFrom?: number;
   endScale?: number;
   opacity?: number;
-}> = ({ src, startFrom = 0, endScale = 1.08, opacity = 1 }) => {
+  muted?: boolean;
+}> = ({
+  src,
+  startFrom = 0,
+  endScale = 1.08,
+  opacity = 1,
+  muted = false,
+}) => {
   const frame = useCurrentFrame();
   const scale = interpolate(frame, [0, 400], [1, endScale], {
     extrapolateLeft: "clamp",
@@ -316,6 +323,7 @@ export const BgVideo: React.FC<{
       <Video
         src={src}
         startFrom={startFrom}
+        muted={muted}
         style={{
           width: "100%",
           height: "100%",

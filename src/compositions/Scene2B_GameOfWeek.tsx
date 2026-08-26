@@ -10,7 +10,12 @@ import {
 } from "remotion";
 import { THEME } from "../data/theme";
 import { SCENE2B_CONFIG, SCENE2B_TIMING } from "../data/config";
-import { BgVideo, NoiseOverlay, SceneBranding } from "../components/shared";
+import {
+  BgVideo,
+  NoiseOverlay,
+  PixelPickedLogo,
+  SceneBranding,
+} from "../components/shared";
 
 // ── Pacing constants pulled from the SAME config the duration math uses ────
 // Do not redefine these locally — that's exactly what caused clips 1 & 2 to
@@ -20,9 +25,202 @@ const {
   clipTransition: CLIP_TRANSITION,
   screenshotHold: SCREENSHOT_HOLD,
   screenshotTransition: SCREENSHOT_TRANSITION,
+  audioCrossfade: AUDIO_CROSSFADE,
 } = SCENE2B_TIMING;
 const LINE_STAGGER = 10; // frames between each hook line appearing
 const DROP_FRAME = 6; // brief charge-up before the screenshot slams in
+const NEXT_AUDIO_START = Math.floor(SCREENSHOT_HOLD / 2);
+
+const CrossfadeAudio: React.FC<{
+  src: string;
+  duration: number;
+  fadeIn?: boolean;
+}> = ({ src, duration, fadeIn = true }) => {
+  const frame = useCurrentFrame();
+  const fadeInVolume = fadeIn
+    ? interpolate(frame, [0, AUDIO_CROSSFADE], [0, 1], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      })
+    : 1;
+  const fadeOutVolume = interpolate(
+    frame,
+    [duration - AUDIO_CROSSFADE, duration],
+    [1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+
+  return <Audio src={src} volume={Math.min(fadeInVolume, fadeOutVolume)} />;
+};
+
+// ── PixelPicked outro — motion version of the carousel brand card ───────────
+const PixelPickedOutro: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps, durationInFrames } = useVideoConfig();
+  const cfg = SCENE2B_CONFIG.outro;
+
+  const enter = spring({
+    frame: frame - 5,
+    fps,
+    config: { damping: 18, stiffness: 105, mass: 0.75 },
+  });
+  const copyEnter = spring({
+    frame: frame - 20,
+    fps,
+    config: { damping: 20, stiffness: 90, mass: 0.8 },
+  });
+  const ctaEnter = spring({
+    frame: frame - 38,
+    fps,
+    config: { damping: 16, stiffness: 120, mass: 0.65 },
+  });
+  const fade = interpolate(
+    frame,
+    [0, 12, durationInFrames - 15, durationInFrames],
+    [0, 1, 1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  const drift = Math.sin(frame * 0.035);
+
+  return (
+    <AbsoluteFill
+      style={{
+        background: "#F4F4F0",
+        color: "#050505",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        opacity: fade,
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: 0.055,
+          backgroundImage:
+            "linear-gradient(#050505 1px, transparent 1px), linear-gradient(90deg, #050505 1px, transparent 1px)",
+          backgroundSize: "72px 72px",
+        }}
+      />
+
+      <div
+        style={{
+          position: "absolute",
+          width: 520,
+          height: 520,
+          borderRadius: "50%",
+          left: -180,
+          top: -165,
+          background: "#FF4D8D",
+          transform: `translate(${drift * 10}px, ${drift * 7}px) scale(${0.86 + enter * 0.14})`,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          width: 430,
+          height: 430,
+          borderRadius: 72,
+          right: -125,
+          bottom: -115,
+          background: "#C7F000",
+          transform: `rotate(${18 + drift * 2}deg) scale(${0.86 + enter * 0.14})`,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          width: 180,
+          height: 180,
+          borderRadius: "50%",
+          right: 105,
+          top: 170,
+          border: "30px solid #8B5CF6",
+          transform: `scale(${0.7 + enter * 0.3})`,
+        }}
+      />
+
+      <div
+        style={{
+          position: "relative",
+          width: 900,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          transform: `translateY(${(1 - enter) * 44}px)`,
+        }}
+      >
+        <div style={{ transform: `scale(${0.75 + enter * 0.25})` }}>
+          <PixelPickedLogo size={180} showText={false} />
+        </div>
+
+        <div
+          style={{
+            marginTop: 32,
+            fontFamily: THEME.fonts.display,
+            fontSize: 108,
+            fontWeight: 950,
+            letterSpacing: -7,
+            lineHeight: 0.95,
+          }}
+        >
+          PixelPicked<span style={{ color: "#FF8A1F" }}>.</span>
+        </div>
+
+        <div
+          style={{
+            marginTop: 34,
+            maxWidth: 720,
+            fontFamily: THEME.fonts.display,
+            fontSize: 58,
+            fontWeight: 900,
+            letterSpacing: -2.5,
+            lineHeight: 1.02,
+            opacity: copyEnter,
+            transform: `translateY(${(1 - copyEnter) * 24}px)`,
+          }}
+        >
+          {cfg.headline}
+        </div>
+
+        <div
+          style={{
+            marginTop: 25,
+            fontFamily: THEME.fonts.body,
+            fontSize: 21,
+            fontWeight: 850,
+            letterSpacing: 3.1,
+            textTransform: "uppercase",
+            opacity: 0.56 * copyEnter,
+          }}
+        >
+          {cfg.tagline}
+        </div>
+
+        <div
+          style={{
+            marginTop: 58,
+            padding: "20px 42px 22px",
+            borderRadius: 18,
+            background: "#050505",
+            boxShadow: "0 16px 38px rgba(0,0,0,0.18)",
+            color: "#FF8A1F",
+            fontFamily: THEME.fonts.display,
+            fontSize: 42,
+            fontWeight: 950,
+            letterSpacing: -1.2,
+            opacity: ctaEnter,
+            transform: `translateY(${(1 - ctaEnter) * 24}px) scale(${0.9 + ctaEnter * 0.1})`,
+          }}
+        >
+          {cfg.cta}
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+};
 
 // ── Hook: title lines stack in one-by-one over showcase footage ─────────────
 const HookLine: React.FC<{
@@ -95,7 +293,13 @@ const HookIntro: React.FC<{
 
   return (
     <AbsoluteFill style={{ background: "#000" }}>
-      <BgVideo src={videoSrc} startFrom={0} endScale={1.06} opacity={1} />
+      <BgVideo
+        src={videoSrc}
+        startFrom={0}
+        endScale={1.06}
+        opacity={1}
+        muted
+      />
       <AbsoluteFill
         style={{
           background:
@@ -604,6 +808,7 @@ const GameClip: React.FC<{
           startFrom={0}
           endScale={1.04}
           opacity={1}
+          muted
         />
       </div>
 
@@ -675,6 +880,7 @@ export const Scene2B_GameOfWeek: React.FC = () => {
   const cfg = SCENE2B_CONFIG;
 
   const SCREENSHOT_PREROLL = SCREENSHOT_HOLD + SCREENSHOT_TRANSITION;
+  const contentDuration = cfg.duration - cfg.outro.duration;
 
   const gameFrames = cfg.games.map(
     (g: { duration: number; screenshot?: unknown }) =>
@@ -687,6 +893,9 @@ export const Scene2B_GameOfWeek: React.FC = () => {
       gameFrames.slice(0, i).reduce((sum: number, d: number) => sum + d, 0),
   );
 
+  const hookAudioDuration =
+    cfg.hook.duration + NEXT_AUDIO_START + AUDIO_CROSSFADE;
+
   const sceneOpacity = interpolate(
     frame,
     [0, 10, cfg.duration - 15, cfg.duration],
@@ -698,7 +907,9 @@ export const Scene2B_GameOfWeek: React.FC = () => {
     <AbsoluteFill
       style={{ background: "#000", overflow: "hidden", opacity: sceneOpacity }}
     >
-      <SceneBranding light />
+      <Sequence from={0} durationInFrames={contentDuration} layout="none">
+        <SceneBranding light />
+      </Sequence>
 
       <Sequence
         from={0}
@@ -711,6 +922,14 @@ export const Scene2B_GameOfWeek: React.FC = () => {
           duration={cfg.hook.duration}
           videoSrc={cfg.hook.videoSrc}
           lines={cfg.hook.lines}
+        />
+      </Sequence>
+
+      <Sequence from={0} durationInFrames={hookAudioDuration} layout="none">
+        <CrossfadeAudio
+          src={cfg.hook.videoSrc}
+          duration={hookAudioDuration}
+          fadeIn={false}
         />
       </Sequence>
 
@@ -743,6 +962,36 @@ export const Scene2B_GameOfWeek: React.FC = () => {
           </Sequence>
         ),
       )}
+
+      {cfg.games.map((game, i) => {
+        const audioStart = clipStarts[i] + NEXT_AUDIO_START;
+        const isLast = i === cfg.games.length - 1;
+        const audioDuration = isLast
+          ? cfg.duration - audioStart
+          : gameFrames[i] + AUDIO_CROSSFADE;
+
+        return (
+          <Sequence
+            key={`audio-${game.name}`}
+            from={audioStart}
+            durationInFrames={audioDuration}
+            layout="none"
+          >
+            <CrossfadeAudio
+              src={game.videoSrc}
+              duration={audioDuration}
+            />
+          </Sequence>
+        );
+      })}
+
+      <Sequence
+        from={contentDuration}
+        durationInFrames={cfg.outro.duration}
+        layout="none"
+      >
+        <PixelPickedOutro />
+      </Sequence>
     </AbsoluteFill>
   );
 };

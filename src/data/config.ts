@@ -45,6 +45,7 @@ export const SCENE2B_TIMING = {
   clipTransition: 12, // frames of cross-fade between games
   screenshotHold: 150, // ≈5s @30fps — screenshot beat-drop hold
   screenshotTransition: 8, // white-flash frames cutting into gameplay
+  audioCrossfade: 45, // 1.5s overlap: outgoing audio fades as the next track enters
 };
 
 export const SCENE2B_CONFIG = {
@@ -53,11 +54,11 @@ export const SCENE2B_CONFIG = {
   // screenshot: "Top 3" / "Hidden Gem" / "Mobile Games", each a new color).
   // Keep this SHORT — it's a hook, not a scene.
   hook: {
-    videoSrc: staticFile("hook.mp4"), // swap for your best-looking clip
-    duration: 1000,
+    videoSrc: staticFile("gris.mp4"), // change this to your own hook clip
+    duration: 180,
     lines: [
       { text: "Top 3", color: "#FF3DAA" },
-      { text: "Shooting", color: "#FFFFFF" },
+      { text: "Beautiful Puzzle", color: "#FFFFFF" },
       { text: "Mobile Games", color: "#F5A623" },
     ],
   },
@@ -72,48 +73,55 @@ export const SCENE2B_CONFIG = {
   // Omit `screenshot` on a game to skip straight to gameplay.
   games: [
     {
-      name: "Rainbow Six Mobile",
-      genre: "Survival Horror · Stealth",
+      name: "Monument Valley 3",
+      genre: "Puzzle · Adventure",
+      platform: "Android · iOS",
+      downloads: "500K+",
+      tagline:
+        "Navigate impossible architecture and guide Noor across a rising sea toward a new home.",
+      videoSrc: staticFile("MomentumValley.mp4"),
+      duration: 360,
+      screenshot: {
+        src: staticFile("momentumvalley.png"),
+        label: "PixelPicked",
+      },
+    },
+    {
+      name: "The Gardens Between",
+      genre: "Puzzle · Adventure",
       platform: "Android · iOS",
       downloads: "50K+",
       tagline:
-        "Sneak through the haunted Sker Hotel and survive enemies that hunt by sound.",
-      videoSrc: staticFile("rainbow6.mp4"),
-      duration: 500,
+        "Manipulate time across dreamlike islands in a bittersweet story of memory and friendship.",
+      videoSrc: staticFile("gardensbetween.mp4"),
+      duration: 360,
       screenshot: {
-        src: staticFile("rainbow6.png"),
+        src: staticFile("gardensbetween.png"),
         label: "PixelPicked",
       },
     },
     {
-      name: "Delta Force",
-      genre: "Psychological Horror · Survival",
+      name: "GRIS",
+      genre: "Platformer · Puzzle",
       platform: "Android · iOS",
       downloads: "100K+",
       tagline:
-        "Solve dark mysteries, manage scarce resources, and face terrifying creatures.",
-      videoSrc: staticFile("DeltaForce.mp4"),
-      duration: 700,
+        "Guide Gris through a serene watercolor world of grief, light puzzles, and graceful platforming.",
+      videoSrc: staticFile("gris.mp4"),
+      duration: 360,
       screenshot: {
-        src: staticFile("deltaforce.png"),
-        label: "PixelPicked",
-      },
-    },
-    {
-      name: "Arena Breakout",
-      genre: "Horror · Exploration",
-      platform: "Android · iOS",
-      downloads: "50M+",
-      tagline:
-        "Search abandoned buildings for treasure while escaping a relentless ghost.",
-      videoSrc: staticFile("ArenaBreakout.mp4"),
-      duration: 500,
-      screenshot: {
-        src: staticFile("ArenaBreakout.png"),
+        src: staticFile("gris.png"),
         label: "PixelPicked",
       },
     },
   ],
+
+  outro: {
+    duration: 180,
+    headline: "Find your next hidden gem.",
+    tagline: "The missing layer of mobile gaming",
+    cta: "PixelPicked.com",
+  },
 
   // Auto-calculated — do not edit manually. Derives entirely from
   // SCENE2B_TIMING now, so it can't drift out of sync with the component.
@@ -126,7 +134,12 @@ export const SCENE2B_CONFIG = {
       0,
     );
     // + clipTransition once at the end, matching the tail of the final clip
-    return this.hook.duration + gamesTotal + SCENE2B_TIMING.clipTransition;
+    return (
+      this.hook.duration +
+      gamesTotal +
+      SCENE2B_TIMING.clipTransition +
+      this.outro.duration
+    );
   },
 };
 
@@ -356,7 +369,8 @@ export const SCENE8_GAME_TRAILER_CONFIG = {
       startAt: 0.55,
       endAt: 0.86,
       heading: "DINO WITH A GUN", // content second
-      subheading: "Blast zombies, robots, and monsters in this roguelike survivor RPG.", // content second
+      subheading:
+        "Blast zombies, robots, and monsters in this roguelike survivor RPG.", // content second
       position: "top-left",
       accentColor: "#EAB308",
     } as GameTrailerTextOverlay,
@@ -380,30 +394,32 @@ export interface InstagramCarouselHeadlineSegment {
   color?: string;
 }
 
-export type InstagramCarouselMedia = {
-  type: "image" | "video";
-  /** Use staticFile("your-file.png") or staticFile("your-file.mp4"). */
-  src: string;
-  /** Only used for video media. */
-  startFrom?: number;
-  fit?: "cover" | "contain";
-  /** CSS object-position, for example "center", "50% 30%", or "left top". */
-  position?: string;
-  /** Preserve crisp edges when scaling low-resolution pixel artwork. */
-  pixelated?: boolean;
-} | {
-  /** PixelPicked-branded artwork used for the final CTA slide. */
-  type: "brand";
-  backgroundColor?: string;
-  foregroundColor?: string;
-  accentColors?: [string, string, string];
-};
+export type InstagramCarouselMedia =
+  | {
+      type: "image" | "video";
+      /** Use staticFile("your-file.png") or staticFile("your-file.mp4"). */
+      src: string;
+      /** Only used for video media. */
+      startFrom?: number;
+      fit?: "cover" | "contain";
+      /** CSS object-position, for example "center", "50% 30%", or "left top". */
+      position?: string;
+      /** Preserve crisp edges when scaling low-resolution pixel artwork. */
+      pixelated?: boolean;
+    }
+  | {
+      /** PixelPicked-branded artwork used for the final CTA slide. */
+      type: "brand";
+      backgroundColor?: string;
+      foregroundColor?: string;
+      accentColors?: [string, string, string];
+    };
 
 export interface InstagramCarouselSlide {
   layout: InstagramCarouselLayout;
   /** Image or video displayed in the top half of this slide. */
   media: InstagramCarouselMedia;
-  eyebrow: string;
+  eyebrow?: string;
   headline: string;
   /** Optional individually colored headline sections. Supports newlines. */
   headlineSegments?: InstagramCarouselHeadlineSegment[];
@@ -420,8 +436,10 @@ export interface InstagramCarouselSlide {
 }
 
 /** Input accepted by the reusable game success-story carousel. */
-export interface InstagramEditorialCarouselProps
-  extends Record<string, unknown> {
+export interface InstagramEditorialCarouselProps extends Record<
+  string,
+  unknown
+> {
   /** Always rendered first. */
   hookSlide?: InstagramCarouselSlide;
   /** Add, remove, or reorder as many context slides as needed. */
@@ -443,7 +461,7 @@ export const SCENE9_BISON_CAROUSEL_CONFIG = {
   slideDuration: 180,
   transitionDuration: 20,
   layout: {
-    topMediaHeight: 540,
+    topMediaHeight: 648,
     panelBackground: "#050505",
     dividerColor: "rgba(255,255,255,0.88)",
   },
@@ -468,7 +486,7 @@ export const SCENE9_BISON_CAROUSEL_CONFIG = {
    *   fit: "cover",
    *   position: "50% 35%",
    * }
-  */
+   */
   hookSlide: {
     layout: "cover",
     media: {
@@ -477,18 +495,16 @@ export const SCENE9_BISON_CAROUSEL_CONFIG = {
       fit: "cover",
       position: "50% 35%",
     },
-    eyebrow: "THE FLAPPY BIRD STORY",
     headline: "ONE DEVELOPER BUILT A GLOBAL PHENOMENON — THEN DELETED IT.",
     headlineSegments: [
       { text: "ONE DEVELOPER BUILT\n", color: "#FFFFFF" },
-      { text: "A GLOBAL PHENOMENON —\n", color: "#C7F000" },
-      { text: "THEN DELETED IT.", color: "#FF4D8D" },
+      { text: "A GLOBAL PHENOMENON\n", color: "#FF8A1F" },
+      { text: "— THEN DELETED IT.", color: "#FFFFFF" },
     ],
-    accentColor: "#FF4D8D",
-    secondaryAccentColor: "#C7F000",
+    accentColor: "#FF8A1F",
     decorations: false,
-    headlineSize: 61,
-    panelBackground: "linear-gradient(135deg, #160914 0%, #050505 72%)",
+    headlineSize: 70,
+    panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)",
   } as InstagramCarouselSlide,
   contentSlides: [
     {
@@ -500,19 +516,18 @@ export const SCENE9_BISON_CAROUSEL_CONFIG = {
         position: "center",
         pixelated: true,
       },
-      eyebrow: "ONE SIMPLE IDEA",
-      headline: "TAP TO FLY. DON'T HIT THE PIPES. 8-BIT GRAPHICS. PUNISHING DIFFICULTY. BUILT IN JUST 2–3 DAYS.",
+      headline:
+        "Tap to fly. Don't hit the pipes. 8-bit graphics. Punishing difficulty. Built in just 2–3 days.",
       headlineSegments: [
-        { text: "TAP TO FLY.\n", color: "#FFFFFF" },
-        { text: "DON'T HIT THE PIPES.\n", color: "#C7F000" },
-        { text: "8-BIT GRAPHICS.\nPUNISHING DIFFICULTY.\n", color: "#FFFFFF" },
-        { text: "BUILT IN JUST 2–3 DAYS.", color: "#8B5CF6" },
+        { text: "Tap to fly.\n", color: "#FFFFFF" },
+        { text: "Don't hit the pipes.\n", color: "#FF8A1F" },
+        { text: "8-bit graphics. Punishing difficulty.\n", color: "#FFFFFF" },
+        { text: "Built in just 2–3 days.", color: "#FF8A1F" },
       ],
-      accentColor: "#C7F000",
-      secondaryAccentColor: "#8B5CF6",
+      accentColor: "#FF8A1F",
       decorations: false,
-      headlineSize: 54,
-      panelBackground: "linear-gradient(135deg, #101608 0%, #050505 72%)",
+      headlineSize: 48,
+      panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)",
     },
     {
       layout: "split",
@@ -523,19 +538,17 @@ export const SCENE9_BISON_CAROUSEL_CONFIG = {
         position: "center",
         pixelated: true,
       },
-      eyebrow: "THEN EVERYTHING CHANGED",
-      headline: "50+ MILLION DOWNLOADS. THE MOST DOWNLOADED GAME IN THE WORLD. REPORTEDLY $50,000 A DAY.",
+      headline:
+        "50+ million downloads. The most downloaded game in the world. Reportedly $50,000 a day.",
       headlineSegments: [
-        { text: "50+ MILLION\n", color: "#A78BFA" },
-        { text: "DOWNLOADS.\n", color: "#FFFFFF" },
-        { text: "THE MOST DOWNLOADED\nGAME IN THE WORLD.\n", color: "#FF4D8D" },
-        { text: "REPORTEDLY $50,000 A DAY.", color: "#FFFFFF" },
+        { text: "50+ million downloads.\n", color: "#FF8A1F" },
+        { text: "The most downloaded game in the world.\n", color: "#FFFFFF" },
+        { text: "Reportedly $50,000 a day.", color: "#FF8A1F" },
       ],
-      accentColor: "#A78BFA",
-      secondaryAccentColor: "#FF4D8D",
+      accentColor: "#FF8A1F",
       decorations: false,
-      headlineSize: 52,
-      panelBackground: "linear-gradient(135deg, #100B1D 0%, #050505 72%)",
+      headlineSize: 48,
+      panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)",
     },
     {
       layout: "left",
@@ -545,19 +558,20 @@ export const SCENE9_BISON_CAROUSEL_CONFIG = {
         fit: "cover",
         position: "50% 34%",
       },
-      eyebrow: "THEN HE DID THE UNTHINKABLE",
-      headline: "HE DELETED IT. AT ITS PEAK. HE SAID IT HAD BECOME AN ADDICTIVE PROBLEM. THOUSANDS A DAY. GONE.",
+      headline:
+        "He deleted it at its peak. He said it had become an addictive problem. Thousands a day, gone.",
       headlineSegments: [
-        { text: "HE DELETED IT.\n", color: "#FF6B6B" },
-        { text: "AT ITS PEAK.\n", color: "#FFFFFF" },
-        { text: "HE SAID IT HAD BECOME\nAN ADDICTIVE PROBLEM.\n", color: "#C7F000" },
-        { text: "THOUSANDS A DAY. GONE.", color: "#FF6B6B" },
+        { text: "He deleted it at its peak.\n", color: "#FF8A1F" },
+        {
+          text: "He said it had become an addictive problem.\n",
+          color: "#FFFFFF",
+        },
+        { text: "Thousands a day, gone.", color: "#FF8A1F" },
       ],
-      accentColor: "#FF6B6B",
-      secondaryAccentColor: "#C7F000",
+      accentColor: "#FF8A1F",
       decorations: false,
-      headlineSize: 50,
-      panelBackground: "linear-gradient(135deg, #1A0C0C 0%, #050505 72%)",
+      headlineSize: 48,
+      panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)",
     },
   ] as InstagramCarouselSlide[],
   ctaSlide: {
@@ -568,19 +582,20 @@ export const SCENE9_BISON_CAROUSEL_CONFIG = {
       foregroundColor: "#050505",
       accentColors: ["#FF4D8D", "#C7F000", "#8B5CF6"],
     },
-    eyebrow: "MOBILE GAMES SHOULD SURPRISE US AGAIN",
-    headline: "BUILD WHAT'S NEXT. FIND IT EARLY. DISCOVER. PLAY. FOLLOW. SHAPE. PIXELPICKED.COM",
+    headline:
+      "Build what's next. Find it early. Discover, play, follow and shape it at PixelPicked.com.",
     headlineSegments: [
-      { text: "BUILD WHAT'S NEXT.\n", color: "#FFFFFF" },
-      { text: "FIND IT EARLY.\n", color: "#C7F000" },
-      { text: "DISCOVER. PLAY.\nFOLLOW. SHAPE.\n", color: "#FFFFFF" },
-      { text: "PIXELPICKED.COM", color: "#FF4D8D" },
+      { text: "Build what's next.\n", color: "#FF8A1F" },
+      {
+        text: "Find it early. Discover, play, follow and shape it.\n",
+        color: "#FFFFFF",
+      },
+      { text: "PixelPicked.com", color: "#FF8A1F" },
     ],
-    accentColor: "#FF4D8D",
-    secondaryAccentColor: "#C7F000",
+    accentColor: "#FF8A1F",
     decorations: false,
-    headlineSize: 52,
-    panelBackground: "linear-gradient(135deg, #170B20 0%, #050505 74%)",
+    headlineSize: 48,
+    panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)",
   } as InstagramCarouselSlide,
   get slides(): InstagramCarouselSlide[] {
     return [this.hookSlide, ...this.contentSlides, this.ctaSlide];
@@ -588,6 +603,119 @@ export const SCENE9_BISON_CAROUSEL_CONFIG = {
   get duration() {
     return this.slides.length * this.slideDuration;
   },
+};
+
+/** Angry Birds success story using the reusable Scene 9 carousel template. */
+export const SCENE9_ANGRY_BIRDS_CAROUSEL_CONFIG = {
+  gameName: "Angry Birds",
+  slideDuration: 180,
+  hookSlide: {
+    layout: "cover",
+    media: {
+      type: "image",
+      src: staticFile("angry-birds-01-hook.png"),
+      fit: "cover",
+      position: "50% 38%",
+    },
+    headline:
+      "ONE GAME DESIGNER SKETCHED A BIRD. IT BECAME A 3-BILLION-DOWNLOAD EMPIRE. 🤯",
+    headlineSegments: [
+      { text: "ONE GAME DESIGNER\n", color: "#FFFFFF" },
+      { text: "SKETCHED A BIRD.\n", color: "#FF8A1F" },
+      { text: "IT BECAME A 3-BILLION-\n", color: "#FFFFFF" },
+      { text: "DOWNLOAD EMPIRE. 🤯", color: "#FF8A1F" },
+    ],
+    accentColor: "#FF8A1F",
+    decorations: false,
+    headlineSize: 64,
+    panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)",
+  } as InstagramCarouselSlide,
+  contentSlides: [
+    {
+      layout: "left",
+      media: {
+        type: "image",
+        src: staticFile("angry-birds-02-origin.png"),
+        fit: "cover",
+        position: "center",
+      },
+      headline:
+        "It started with a simple drawing by Jaakko Iisalo. He drew angry birds facing off against green pigs.",
+      headlineSegments: [
+        { text: "It started with a simple drawing\n", color: "#FFFFFF" },
+        { text: "by Jaakko Iisalo.\n", color: "#FF8A1F" },
+        { text: "He drew angry birds facing off\n", color: "#FFFFFF" },
+        { text: "against green pigs.", color: "#FF8A1F" },
+      ],
+      accentColor: "#FF8A1F",
+      decorations: false,
+      headlineSize: 47,
+      panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)",
+    },
+    {
+      layout: "split",
+      media: {
+        type: "image",
+        src: staticFile("angry-birds-03-billion.png"),
+        fit: "cover",
+        position: "50% 36%",
+      },
+      headline:
+        "Then everything changed. The original game reached 1 billion downloads by 2012.",
+      headlineSegments: [
+        { text: "Then everything changed.\n", color: "#FF8A1F" },
+        { text: "The original game reached\n", color: "#FFFFFF" },
+        { text: "1 billion downloads\n", color: "#FF8A1F" },
+        { text: "by 2012.", color: "#FFFFFF" },
+      ],
+      accentColor: "#FF8A1F",
+      decorations: false,
+      headlineSize: 50,
+      panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)",
+    },
+    {
+      layout: "left",
+      media: {
+        type: "image",
+        src: staticFile("angry-birds-04-rovio.png"),
+        fit: "cover",
+        position: "center",
+      },
+      headline:
+        "Rovio had already released 51 games. Most failed, but the 52nd birds changed everything.",
+      headlineSegments: [
+        { text: "Rovio had already released\n", color: "#FFFFFF" },
+        { text: "51 games.\n", color: "#FF8A1F" },
+        { text: "Most failed, but the 52nd birds\n", color: "#FFFFFF" },
+        { text: "changed everything.", color: "#FF8A1F" },
+      ],
+      accentColor: "#FF8A1F",
+      decorations: false,
+      headlineSize: 48,
+      panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)",
+    },
+    {
+      layout: "left",
+      media: {
+        type: "image",
+        src: staticFile("angry-birds-05-franchise.png"),
+        fit: "cover",
+        position: "center",
+      },
+      headline:
+        "One simple idea. One mobile game. A global franchise. How many games are you overlooking?",
+      headlineSegments: [
+        { text: "One simple idea. One mobile game.\n", color: "#FFFFFF" },
+        { text: "A global franchise.\n", color: "#FF8A1F" },
+        { text: "How many games are you overlooking?", color: "#FFFFFF" },
+      ],
+      accentColor: "#FF8A1F",
+      decorations: false,
+      headlineSize: 47,
+      panelBackground: "linear-gradient(135deg, #17100A 0%, #050505 72%)",
+    },
+  ] as InstagramCarouselSlide[],
+  ctaSlide: SCENE9_BISON_CAROUSEL_CONFIG.ctaSlide,
 };
 
 /**

@@ -20,11 +20,17 @@ import {
 } from "../components/shared";
 import { THEME } from "../data/theme";
 
+const HOOK_FONT =
+  "Impact, 'Arial Narrow', 'Helvetica Neue Condensed Bold', sans-serif";
+const STORY_FONT =
+  "'Arial Narrow', 'Helvetica Neue Condensed', 'Roboto Condensed', sans-serif";
+
 const EditorialText: React.FC<{
   slide: InstagramCarouselSlide;
   slideDuration: number;
+  isHook: boolean;
   headlineSize?: number;
-}> = ({ slide, slideDuration, headlineSize = 74 }) => {
+}> = ({ slide, slideDuration, isHook, headlineSize = 74 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const enter = spring({
@@ -45,34 +51,23 @@ const EditorialText: React.FC<{
         opacity,
         transform: `translateY(${(1 - enter) * 28}px)`,
         width: "100%",
-        textAlign: "left",
+        textAlign: "center",
         display: "flex",
         flexDirection: "column",
-        alignItems: "flex-start",
+        alignItems: "center",
       }}
     >
       <div
         style={{
-          fontFamily: THEME.fonts.body,
-          fontSize: 20,
-          fontWeight: 900,
-          letterSpacing: 3.4,
-          color: slide.accentColor ?? THEME.colors.accent,
-          textTransform: "uppercase",
-          marginBottom: 14,
-        }}
-      >
-        {slide.eyebrow}
-      </div>
-      <div
-        style={{
-          fontFamily: THEME.fonts.display,
+          fontFamily: isHook ? HOOK_FONT : STORY_FONT,
           fontSize: slide.headlineSize ?? headlineSize,
-          fontWeight: 950,
-          letterSpacing: -3.8,
-          lineHeight: 0.88,
+          fontWeight: isHook ? 900 : 500,
+          fontStretch: "condensed",
+          letterSpacing: isHook ? -1.8 : -1.2,
+          lineHeight: isHook ? 0.94 : 1.03,
           whiteSpace: "pre-line",
           color: slide.textColor ?? "#FFFFFF",
+          textTransform: isHook ? "uppercase" : "none",
           textShadow: "0 6px 28px rgba(0,0,0,0.35)",
         }}
       >
@@ -457,6 +452,7 @@ const CarouselSlide: React.FC<{
         <EditorialText
           slide={slide}
           slideDuration={slideDuration}
+          isHook={isCover}
           headlineSize={headlineSize}
         />
       </div>
