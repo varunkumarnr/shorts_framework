@@ -14,6 +14,7 @@ import {
   BgVideo,
   NoiseOverlay,
   PixelPickedLogo,
+  resolveStudioMedia,
   SceneBranding,
 } from "../components/shared";
 
@@ -30,6 +31,74 @@ const {
 const LINE_STAGGER = 10; // frames between each hook line appearing
 const DROP_FRAME = 6; // brief charge-up before the screenshot slams in
 const NEXT_AUDIO_START = Math.floor(SCREENSHOT_HOLD / 2);
+
+export interface Scene2BGame {
+  name: string;
+  genre: string;
+  platform?: string;
+  tagline?: string;
+  downloads?: string;
+  videoSrc: string;
+  duration: number;
+  screenshot?: { src: string; label: string; dropSfx?: string };
+}
+
+export interface Scene2BProps extends Record<string, unknown> {
+  hook?: {
+    videoSrc?: string;
+    duration?: number;
+    lines?: { text: string; color: string }[];
+  };
+  games?: Scene2BGame[];
+  outro?: {
+    duration?: number;
+    headline?: string;
+    tagline?: string;
+    cta?: string;
+  };
+}
+
+export const resolveScene2BConfig = (props: Scene2BProps = {}) => ({
+  hook: {
+    ...SCENE2B_CONFIG.hook,
+    ...props.hook,
+    videoSrc: props.hook?.videoSrc
+      ? resolveStudioMedia(props.hook.videoSrc)
+      : SCENE2B_CONFIG.hook.videoSrc,
+  },
+  games: props.games
+    ? props.games.map((game) => ({
+        ...game,
+        videoSrc: resolveStudioMedia(game.videoSrc),
+        screenshot: game.screenshot
+          ? {
+              ...game.screenshot,
+              src: resolveStudioMedia(game.screenshot.src),
+              dropSfx: game.screenshot.dropSfx
+                ? resolveStudioMedia(game.screenshot.dropSfx)
+                : undefined,
+            }
+          : undefined,
+      }))
+    : SCENE2B_CONFIG.games,
+  outro: { ...SCENE2B_CONFIG.outro, ...props.outro },
+});
+
+export const calculateScene2BDuration = (props: Scene2BProps = {}) => {
+  const cfg = resolveScene2BConfig(props);
+  const screenshotPreroll = SCREENSHOT_HOLD + SCREENSHOT_TRANSITION;
+  const gamesDuration = cfg.games.reduce(
+    (sum, game) =>
+      sum + game.duration + (game.screenshot ? screenshotPreroll : 0),
+    0,
+  );
+  return (
+    cfg.hook.duration +
+    gamesDuration +
+    CLIP_TRANSITION +
+    cfg.outro.duration
+  );
+};
 
 const CrossfadeAudio: React.FC<{
   src: string;
@@ -874,13 +943,13 @@ const GameClip: React.FC<{
 };
 
 // ── Main scene ─────────────────────────────────────────────────────────────────
-export const Scene2B_GameOfWeek: React.FC = () => {
+export const Scene2B_GameOfWeek: React.FC<Scene2BProps> = (props) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const cfg = SCENE2B_CONFIG;
+  const { fps, durationInFrames } = useVideoConfig();
+  const cfg = resolveScene2BConfig(props);
 
   const SCREENSHOT_PREROLL = SCREENSHOT_HOLD + SCREENSHOT_TRANSITION;
-  const contentDuration = cfg.duration - cfg.outro.duration;
+  const contentDuration = durationInFrames - cfg.outro.duration;
 
   const gameFrames = cfg.games.map(
     (g: { duration: number; screenshot?: unknown }) =>
@@ -898,7 +967,7 @@ export const Scene2B_GameOfWeek: React.FC = () => {
 
   const sceneOpacity = interpolate(
     frame,
-    [0, 10, cfg.duration - 15, cfg.duration],
+    [0, 10, durationInFrames - 15, durationInFrames],
     [0, 1, 1, 0],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
@@ -967,7 +1036,7 @@ export const Scene2B_GameOfWeek: React.FC = () => {
         const audioStart = clipStarts[i] + NEXT_AUDIO_START;
         const isLast = i === cfg.games.length - 1;
         const audioDuration = isLast
-          ? cfg.duration - audioStart
+          ? durationInFrames - audioStart
           : gameFrames[i] + AUDIO_CROSSFADE;
 
         return (

@@ -78,6 +78,28 @@ Place your media in the `public/` folder:
 
 ## Rendering
 
+### No-code Creator Studio
+
+The local Creator Studio lets non-technical teammates create the four primary
+PixelPicked formats without editing TypeScript:
+
+- Game trailer
+- Top 3 games video
+- Editorial carousel image set
+- Launch campaign artwork
+
+Start it with:
+
+```bash
+npm run ui
+```
+
+Then open [http://localhost:4173](http://localhost:4173). Choose a format,
+upload the requested media, edit the copy, and click **Render**. Uploaded files
+are stored in `public/uploads/`; finished files are stored in
+`out/ui-renders/` and appear as download links in the UI. Rendering stays local
+to the computer.
+
 ```bash
 # Full trailer
 npx remotion render src/index.ts PixelPickedTrailer out/trailer.mp4

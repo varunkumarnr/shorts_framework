@@ -97,6 +97,10 @@ export const Label: React.FC<TextProps> = ({
 
 export const LOGO_SRC: string | null = staticFile("favicon.svg");
 
+/** Resolve files uploaded by Creator Studio without changing existing URLs. */
+export const resolveStudioMedia = (src: string) =>
+  src.startsWith("/uploads/") ? staticFile(src.slice(1)) : src;
+
 interface LogoProps {
   size?: number;
   showText?: boolean;

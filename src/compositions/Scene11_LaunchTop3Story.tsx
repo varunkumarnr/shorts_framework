@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Img } from "remotion";
-import { PixelPickedLogo } from "../components/shared";
+import { PixelPickedLogo, resolveStudioMedia } from "../components/shared";
 import { SCENE11_LAUNCH_TOP3_STORY_CONFIG } from "../data/config";
 import { THEME } from "../data/theme";
 
@@ -152,7 +152,7 @@ const CoverSlide: React.FC<{
             }}
           >
             <Img
-              src={product.artwork}
+              src={resolveStudioMedia(product.artwork)}
               style={{
                 width: "100%",
                 height: "calc(100% - 58px)",
@@ -355,7 +355,7 @@ const ProductSlide: React.FC<{ product: Product; active: number }> = ({
     }}
   >
     <Img
-      src={product.artwork}
+      src={resolveStudioMedia(product.artwork)}
       style={{
         position: "absolute",
         inset: -110,
@@ -390,7 +390,7 @@ const ProductSlide: React.FC<{ product: Product; active: number }> = ({
       }}
     >
       <Img
-        src={product.artwork}
+        src={resolveStudioMedia(product.artwork)}
         style={{ width: "100%", height: "100%", objectFit: "cover" }}
       />
       <div

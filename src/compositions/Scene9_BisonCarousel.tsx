@@ -16,6 +16,7 @@ import {
 } from "../data/config";
 import {
   PixelPickedLogo,
+  resolveStudioMedia,
   SceneBranding,
 } from "../components/shared";
 import { THEME } from "../data/theme";
@@ -300,7 +301,7 @@ const CarouselSlide: React.FC<{
           />
         ) : slide.media.type === "image" ? (
           <Img
-            src={slide.media.src}
+            src={resolveStudioMedia(slide.media.src)}
             style={{
               width: "100%",
               height: "100%",
@@ -311,7 +312,7 @@ const CarouselSlide: React.FC<{
           />
         ) : (
           <Video
-            src={slide.media.src}
+            src={resolveStudioMedia(slide.media.src)}
             startFrom={slide.media.startFrom ?? 0}
             muted
             style={{

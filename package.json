@@ -4,6 +4,7 @@
   "description": "PixelPicked cinematic launch trailer — 6-scene modular Remotion system",
   "scripts": {
     "start": "remotion studio",
+    "ui": "node studio-ui/server.mjs",
     "build": "remotion render",
     "render": "remotion render src/index.ts PixelPickedTrailer out/trailer.mp4"
   },

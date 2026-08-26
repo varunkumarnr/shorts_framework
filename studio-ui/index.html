@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PixelPicked Creator Studio</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside>
+        <div class="brand"><span class="brand-mark">⌕</span><span>PixelPicked<span class="dot">.</span></span></div>
+        <p class="aside-label">CREATOR STUDIO</p>
+        <nav>
+          <button class="nav active" data-format="trailer"><span>▶</span> Game trailer</button>
+          <button class="nav" data-format="top3"><span>③</span> Top 3 games</button>
+          <button class="nav" data-format="carousel"><span>▦</span> Carousel</button>
+          <button class="nav" data-format="launch"><span>↗</span> Launch campaign</button>
+        </nav>
+        <div class="aside-note">No code required.<br />Upload, customize, render.</div>
+      </aside>
+
+      <main>
+        <header>
+          <div><p class="kicker">PIXELPICKED / CREATE</p><h1 id="page-title">Game trailer</h1></div>
+          <div class="status-pill"><i></i> Local renderer ready</div>
+        </header>
+
+        <div class="workspace">
+          <form id="creator-form">
+            <section class="format-panel active" data-panel="trailer">
+              <div class="section-title"><div><span>01</span><h2>Trailer media</h2></div><p>16:9 YouTube-ready video</p></div>
+              <div class="field full"><label>Gameplay trailer <b>*</b></label><input type="file" name="trailer_video" accept="video/*" /></div>
+              <div class="grid-2">
+                <div class="field"><label>Video fit</label><select name="trailer_fit"><option value="contain">Keep original ratio</option><option value="cover">Fill canvas</option></select></div>
+                <div class="field"><label>Scale</label><input type="number" name="trailer_scale" value="1" min="0.5" max="2" step="0.05" /></div>
+              </div>
+              <div class="section-title compact"><div><span>02</span><h2>Opening hook</h2></div></div>
+              <div class="field"><label>Hook headline</label><input name="trailer_hook" value="A DINOSAUR. WITH A GUN." /></div>
+              <div class="field"><label>Hook subheading</label><textarea name="trailer_hook_sub">Yes, it is exactly as chaotic as it sounds.</textarea></div>
+              <div class="section-title compact"><div><span>03</span><h2>Game title</h2></div></div>
+              <div class="field"><label>Title</label><input name="trailer_title" value="DINO WITH A GUN" /></div>
+              <div class="field"><label>Description</label><textarea name="trailer_description">Blast zombies, robots, and monsters in this roguelike survivor RPG.</textarea></div>
+              <div class="section-title compact"><div><span>04</span><h2>Outro</h2></div></div>
+              <div class="field"><label>Outro headline</label><input name="trailer_outro" value="Check out Dino with a Gun at PixelPicked" /></div>
+              <div class="field"><label>PixelPicked link</label><input name="trailer_link" value="pixelpicked.com/game/your-game" /></div>
+            </section>
+
+            <section class="format-panel" data-panel="top3">
+              <div class="section-title"><div><span>01</span><h2>Top 3 hook</h2></div><p>9:16 social video</p></div>
+              <div class="field full"><label>Hook video <b>*</b></label><input type="file" name="top3_hook_video" accept="video/*" /></div>
+              <div class="grid-3">
+                <div class="field"><label>Line 1</label><input name="top3_line_1" value="Top 3" /></div>
+                <div class="field"><label>Line 2</label><input name="top3_line_2" value="Beautiful Puzzle" /></div>
+                <div class="field"><label>Line 3</label><input name="top3_line_3" value="Mobile Games" /></div>
+              </div>
+              <div id="top3-games"></div>
+              <div class="section-title compact"><div><span>05</span><h2>PixelPicked outro</h2></div></div>
+              <div class="field"><label>Headline</label><input name="top3_outro" value="Find your next hidden gem." /></div>
+              <div class="field"><label>CTA</label><input name="top3_cta" value="PixelPicked.com" /></div>
+            </section>
+
+            <section class="format-panel" data-panel="carousel">
+              <div class="section-title"><div><span>01</span><h2>Carousel story</h2></div><p>1080 × 1080 images</p></div>
+              <div class="grid-2">
+                <div class="field"><label>Game name</label><input name="carousel_game" value="Your Game" /></div>
+                <div class="field"><label>Seconds per slide</label><input type="number" name="carousel_seconds" value="3" min="1" max="10" /></div>
+              </div>
+              <div class="slide-card"><div class="card-heading"><strong>Hook slide</strong><span>Required</span></div>
+                <div class="field"><label>Image</label><input type="file" name="carousel_hook_image" accept="image/*" /></div>
+                <div class="field"><label>Bold hook</label><textarea name="carousel_hook">ONE SIMPLE IDEA BECAME A GLOBAL PHENOMENON. 🤯</textarea></div>
+                <div class="field"><label>Orange highlight text</label><input name="carousel_hook_highlight" value="GLOBAL PHENOMENON" /></div>
+              </div>
+              <div id="carousel-slides"></div>
+              <button type="button" class="secondary" id="add-slide">＋ Add story slide</button>
+              <div class="section-title compact"><div><span>CTA</span><h2>Final slide</h2></div></div>
+              <div class="field"><label>CTA text</label><textarea name="carousel_cta">Build what's next. Find it early. Discover, play, follow and shape it at PixelPicked.com.</textarea></div>
+              <div class="field"><label>Orange highlight text</label><input name="carousel_cta_highlight" value="PixelPicked.com" /></div>
+            </section>
+
+            <section class="format-panel" data-panel="launch">
+              <div class="section-title"><div><span>01</span><h2>Campaign details</h2></div><p>1080 × 1350 social post</p></div>
+              <div class="grid-2">
+                <div class="field"><label>Date range</label><input name="launch_date" value="AUG 24–30, 2026" /></div>
+                <div class="field"><label>Campaign day</label><input name="launch_day" value="DAY 1" /></div>
+                <div class="field"><label>Total votes</label><input name="launch_total" value="0 votes" /></div>
+                <div class="field"><label>CTA</label><input name="launch_cta" value="Vote for this week's best launch" /></div>
+              </div>
+              <div class="field"><label>Campaign link</label><input name="launch_link" value="pixelpicked.com/launch-campaign" /></div>
+              <div id="launch-products"></div>
+            </section>
+          </form>
+
+          <aside class="preview-pane">
+            <div class="preview-head"><span>OUTPUT</span><strong id="preview-format">MP4 · 1920 × 1080</strong></div>
+            <div class="preview-card" id="preview-card">
+              <div class="preview-logo">PP<span>.</span></div>
+              <h3>Ready to create</h3>
+              <p>Complete the fields, upload your media, and render.</p>
+            </div>
+            <div id="render-status" class="render-status hidden">
+              <div class="progress"><i></i></div><p>Preparing render…</p><pre></pre>
+            </div>
+            <div id="outputs" class="outputs"></div>
+            <button type="submit" form="creator-form" class="render-button"><span id="render-label">Render game trailer only</span><span>→</span></button>
+            <p class="render-note">Only the selected format is rendered. Files stay on this computer.</p>
+          </aside>
+        </div>
+      </main>
+    </div>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

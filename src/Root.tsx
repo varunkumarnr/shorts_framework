@@ -21,13 +21,21 @@ import {
 } from "./data/config";
 import { Scene1_Reddit } from "./compositions/Scene1_Reddit";
 import { Scene2_Gameplay } from "./compositions/Scene2_Gameplay";
-import { Scene2B_GameOfWeek } from "./compositions/Scene2B_GameOfWeek";
+import {
+  calculateScene2BDuration,
+  Scene2B_GameOfWeek,
+  Scene2BProps,
+} from "./compositions/Scene2B_GameOfWeek";
 import { Scene3_Mockup } from "./compositions/Scene3_Mockup";
 import { Scene4_Outro } from "./compositions/Scene4_Outro";
 import { Scene5_List } from "./compositions/Scene5_List";
 import { Scene6_BeforeAfter } from "./compositions/Scene6_BeforeAfter";
 import { Scene7_InstagramText } from "./compositions/Scene7_Instagram";
-import { Scene8_GameTrailer } from "./compositions/Scene8_GameTrailer";
+import {
+  resolveGameTrailerConfig,
+  Scene8_GameTrailer,
+  Scene8GameTrailerProps,
+} from "./compositions/Scene8_GameTrailer";
 import { Scene9_BisonCarousel } from "./compositions/Scene9_BisonCarousel";
 import { Scene10_BisonVideoCarousel } from "./compositions/Scene10_BisonVideoCarousel";
 import {
@@ -37,9 +45,9 @@ import {
 import { Scene12_LastWeekWinners } from "./compositions/Scene12_LastWeekWinners";
 
 const calculateTrailerMetadata: CalculateMetadataFunction<
-  Record<string, unknown>
-> = async () => {
-  const cfg = SCENE8_GAME_TRAILER_CONFIG;
+  Scene8GameTrailerProps
+> = async ({ props }) => {
+  const cfg = resolveGameTrailerConfig(props);
   const metadata = await getVideoMetadata(cfg.trailer.src);
   const trailerFrames = Math.ceil(
     metadata.durationInSeconds * cfg.canvas.fps,
@@ -53,6 +61,15 @@ const calculateTrailerMetadata: CalculateMetadataFunction<
     height: cfg.canvas.height,
   };
 };
+
+const calculateTop3Metadata: CalculateMetadataFunction<Scene2BProps> = ({
+  props,
+}) => ({
+  durationInFrames: calculateScene2BDuration(props),
+  fps: THEME.canvas.fps,
+  width: THEME.canvas.width,
+  height: THEME.canvas.height,
+});
 
 const calculateEditorialCarouselMetadata: CalculateMetadataFunction<
   InstagramEditorialCarouselProps
@@ -117,13 +134,17 @@ const formatCampaignRange = (startIso: string, endIso: string) => {
 
 const calculateCurrentLaunchMetadata: CalculateMetadataFunction<
   Scene11LaunchProps
-> = async () => {
+> = async ({ props }) => {
   const fallback = {
     durationInFrames: SCENE11_LAUNCH_TOP3_STORY_CONFIG.duration,
     fps: SCENE11_LAUNCH_TOP3_STORY_CONFIG.canvas.fps,
     width: SCENE11_LAUNCH_TOP3_STORY_CONFIG.canvas.width,
     height: SCENE11_LAUNCH_TOP3_STORY_CONFIG.canvas.height,
   };
+
+  if (props.products?.length) {
+    return { ...fallback, props };
+  }
 
   try {
     const response = await fetch(CURRENT_WEEK_LAUNCHES_API);
@@ -210,8 +231,7 @@ export const Root: React.FC = () => {
       <Composition
         id="Scene2B-GameOfWeek"
         component={Scene2B_GameOfWeek}
-        durationInFrames={SCENE2B_CONFIG.duration}
-        fps={fps}
+        calculateMetadata={calculateTop3Metadata}
         width={width}
         height={height}
       />

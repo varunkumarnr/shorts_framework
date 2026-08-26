@@ -12,8 +12,66 @@ import {
   GameTrailerTextOverlay,
   SCENE8_GAME_TRAILER_CONFIG,
 } from "../data/config";
-import { PixelPickedLogo, SceneBranding } from "../components/shared";
+import {
+  PixelPickedLogo,
+  resolveStudioMedia,
+  SceneBranding,
+} from "../components/shared";
 import { THEME } from "../data/theme";
+
+export interface Scene8GameTrailerProps extends Record<string, unknown> {
+  backgroundColor?: string;
+  trailer?: {
+    src?: string;
+    fit?: "cover" | "contain";
+    scale?: number;
+  };
+  watermark?: {
+    enabled?: boolean;
+    light?: boolean;
+  };
+  textOverlays?: {
+    enabled?: boolean;
+    hook?: Partial<GameTrailerTextOverlay>;
+    title?: Partial<GameTrailerTextOverlay>;
+  };
+  outro?: {
+    enabled?: boolean;
+    duration?: number;
+    headline?: string;
+    link?: string;
+    backgroundColor?: string;
+    textColor?: string;
+    accentColor?: string;
+    logoSize?: number;
+  };
+}
+
+export const resolveGameTrailerConfig = (props: Scene8GameTrailerProps = {}) => ({
+  ...SCENE8_GAME_TRAILER_CONFIG,
+  ...props,
+  trailer: {
+    ...SCENE8_GAME_TRAILER_CONFIG.trailer,
+    ...props.trailer,
+    src: props.trailer?.src
+      ? resolveStudioMedia(props.trailer.src)
+      : SCENE8_GAME_TRAILER_CONFIG.trailer.src,
+  },
+  watermark: { ...SCENE8_GAME_TRAILER_CONFIG.watermark, ...props.watermark },
+  textOverlays: {
+    ...SCENE8_GAME_TRAILER_CONFIG.textOverlays,
+    ...props.textOverlays,
+    hook: {
+      ...SCENE8_GAME_TRAILER_CONFIG.textOverlays.hook,
+      ...props.textOverlays?.hook,
+    },
+    title: {
+      ...SCENE8_GAME_TRAILER_CONFIG.textOverlays.title,
+      ...props.textOverlays?.title,
+    },
+  },
+  outro: { ...SCENE8_GAME_TRAILER_CONFIG.outro, ...props.outro },
+});
 
 const positionStyles: Record<
   GameTrailerTextOverlay["position"],
@@ -131,10 +189,11 @@ const TrailerText: React.FC<{
   );
 };
 
-const TrailerOutro: React.FC = () => {
+const TrailerOutro: React.FC<{
+  cfg: ReturnType<typeof resolveGameTrailerConfig>["outro"];
+}> = ({ cfg }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const cfg = SCENE8_GAME_TRAILER_CONFIG.outro;
   const enter = spring({
     frame,
     fps,
@@ -214,9 +273,9 @@ const TrailerOutro: React.FC = () => {
   );
 };
 
-export const Scene8_GameTrailer: React.FC = () => {
+export const Scene8_GameTrailer: React.FC<Scene8GameTrailerProps> = (props) => {
   const { durationInFrames } = useVideoConfig();
-  const cfg = SCENE8_GAME_TRAILER_CONFIG;
+  const cfg = resolveGameTrailerConfig(props);
   const outroDuration = cfg.outro.enabled ? cfg.outro.duration : 0;
   const trailerDuration = Math.max(1, durationInFrames - outroDuration);
 
@@ -255,7 +314,7 @@ export const Scene8_GameTrailer: React.FC = () => {
 
       {cfg.outro.enabled && (
         <Sequence from={trailerDuration} durationInFrames={outroDuration}>
-          <TrailerOutro />
+          <TrailerOutro cfg={cfg.outro} />
         </Sequence>
       )}
     </AbsoluteFill>
