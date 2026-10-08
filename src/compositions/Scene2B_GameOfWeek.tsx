@@ -911,32 +911,6 @@ const GameClip: React.FC<{
 
       <ClipNumber number={clipNumber} localFrame={gameFrame} fps={fps} />
 
-      <div
-        style={{
-          position: "absolute",
-          top: 72,
-          right: 56,
-          zIndex: 20,
-          opacity: interpolate(gameFrame, [4, 14], [0, 1], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
-        }}
-      >
-        <div
-          style={{
-            fontFamily: THEME.fonts.body,
-            fontSize: 15,
-            fontWeight: 800,
-            color: "rgba(255,255,255,0.3)",
-            letterSpacing: 4,
-            textTransform: "uppercase",
-          }}
-        >
-          PixelPicked · Hidden Gems
-        </div>
-      </div>
-
       <GameMeta game={game} localFrame={gameFrame} fps={fps} />
     </AbsoluteFill>
   );
@@ -1036,7 +1010,7 @@ export const Scene2B_GameOfWeek: React.FC<Scene2BProps> = (props) => {
         const audioStart = clipStarts[i] + NEXT_AUDIO_START;
         const isLast = i === cfg.games.length - 1;
         const audioDuration = isLast
-          ? durationInFrames - audioStart
+          ? contentDuration - audioStart + AUDIO_CROSSFADE
           : gameFrames[i] + AUDIO_CROSSFADE;
 
         return (
@@ -1053,6 +1027,17 @@ export const Scene2B_GameOfWeek: React.FC<Scene2BProps> = (props) => {
           </Sequence>
         );
       })}
+
+      <Sequence
+        from={contentDuration}
+        durationInFrames={cfg.outro.duration}
+        layout="none"
+      >
+        <CrossfadeAudio
+          src={cfg.hook.videoSrc}
+          duration={cfg.outro.duration}
+        />
+      </Sequence>
 
       <Sequence
         from={contentDuration}

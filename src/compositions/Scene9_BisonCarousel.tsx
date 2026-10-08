@@ -26,6 +26,25 @@ const HOOK_FONT =
 const STORY_FONT =
   "'Arial Narrow', 'Helvetica Neue Condensed', 'Roboto Condensed', sans-serif";
 
+const dynamicHeadlineSize = (
+  slide: InstagramCarouselSlide,
+  isHook: boolean,
+): number => {
+  const text = slide.headlineSegments?.map((segment) => segment.text).join("") ?? slide.headline;
+  const lines = text.split("\n").filter(Boolean);
+  const longestLine = Math.max(...lines.map((line) => line.length), 1);
+  const base = isHook ? 72 : slide.layout === "cta" ? 58 : 54;
+  const minimum = isHook ? 48 : 38;
+  const longestLinePenalty = Math.max(0, longestLine - 22) * 0.9;
+  const totalTextPenalty = Math.max(0, text.length - 90) * 0.12;
+  const extraLinePenalty = Math.max(0, lines.length - 4) * 2.5;
+
+  return Math.max(
+    minimum,
+    Math.min(base, base - Math.max(longestLinePenalty, totalTextPenalty) - extraLinePenalty),
+  );
+};
+
 const EditorialText: React.FC<{
   slide: InstagramCarouselSlide;
   slideDuration: number;
@@ -45,6 +64,8 @@ const EditorialText: React.FC<{
     [0, 1, 1, 0],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
+  const resolvedHeadlineSize =
+    slide.headlineSize ?? dynamicHeadlineSize(slide, isHook) ?? headlineSize;
 
   return (
     <div
@@ -52,16 +73,16 @@ const EditorialText: React.FC<{
         opacity,
         transform: `translateY(${(1 - enter) * 28}px)`,
         width: "100%",
-        textAlign: "center",
+        textAlign: slide.textAlign ?? "center",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
+        alignItems: slide.textAlign === "left" ? "stretch" : "center",
       }}
     >
       <div
         style={{
           fontFamily: slide.fontFamily ?? (isHook ? HOOK_FONT : STORY_FONT),
-          fontSize: slide.headlineSize ?? headlineSize,
+          fontSize: resolvedHeadlineSize,
           fontWeight: slide.fontWeight ?? (isHook ? 900 : 500),
           fontStretch: "condensed",
           letterSpacing: isHook ? -1.8 : -1.2,
@@ -393,7 +414,7 @@ const CarouselSlide: React.FC<{
           right: 0,
           bottom: 0,
           background: slide.panelBackground ?? cfg.layout.panelBackground,
-          padding: "38px 64px 58px",
+          padding: slide.panelPadding ?? "38px 64px 58px",
           overflow: "hidden",
           display: "flex",
           alignItems: "center",

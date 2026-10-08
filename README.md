@@ -113,6 +113,12 @@ npx remotion render src/index.ts Scene5_List out/scene5.mp4
 npx remotion render src/index.ts Scene6_BeforeAfter out/scene6.mp4
 npx remotion render src/index.ts BisonAttack-InstagramCarousel out/bison-carousel.mp4
 npx remotion render src/index.ts BisonAttack-VideoCarousel out/bison-video-carousel.mp4
+npx remotion render src/index.ts PixelPicked-CPI-Rise out/cpi-rise.mov --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le
+npx remotion render src/index.ts PixelPicked-CPI-Counter out/cpi-counter.mov --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le
+npx remotion render src/index.ts PixelPicked-Typewriter-Quote out/typewriter-quote.mov --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le
+npx remotion render src/index.ts PixelPicked-Sponsored-Storefront out/sponsored-storefront.mp4
+npx remotion render src/index.ts PixelPicked-CPI-Statement out/cpi-statement.mov --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le
+npx remotion render src/index.ts PixelPicked-CPI-Counter out/cpi-counter.mov --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le
 npx remotion still src/index.ts PixelPicked-Top3-Story out/current-launches.png
 npx remotion still src/index.ts PixelPicked-LastWeek-Winners out/last-week-winners.png
 ```
@@ -205,3 +211,11 @@ last week's results never changes the current launch-campaign post.
 | Accent | `#EAB308` |
 | Canvas | 1080 × 1920 @ 60fps |
 | Font | Inter / SF Pro / Helvetica Neue |
+# Guess the Game template
+
+`Guess-The-Game-Day-1-Witcher-3` is a clean 16:9 gameplay post inspired by the
+reference Threads format. The question stays in the social caption, so the
+render contains no title card, answer, logo, streamer, or creator overlay.
+
+For the next day, replace the clip in `public/guess-the-game/` and update
+`SCENE55_GUESS_THE_GAME_CONFIG` at the end of `src/data/config.ts`.

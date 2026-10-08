@@ -10,6 +10,13 @@ const PROJECT_DIR = path.dirname(UI_DIR);
 const PUBLIC_DIR = path.join(PROJECT_DIR, "public");
 const UPLOAD_DIR = path.join(PUBLIC_DIR, "uploads");
 const RENDER_DIR = path.join(PROJECT_DIR, "out", "ui-renders");
+const REMOTION_CLI = path.join(
+  PROJECT_DIR,
+  "node_modules",
+  "@remotion",
+  "cli",
+  "remotion-cli.js",
+);
 const PORT = Number(process.env.PIXELPICKED_UI_PORT || 4173);
 const jobs = new Map();
 
@@ -47,24 +54,34 @@ const parseJson = async (req) => {
 
 const run = (args, job) =>
   new Promise((resolve, reject) => {
-    const executable = process.platform === "win32" ? "npx.cmd" : "npx";
-    const child = spawn(executable, args, {
+    const remotionArgs = args[0] === "remotion" ? args.slice(1) : args;
+    // Launch the JavaScript CLI with the currently running Node executable.
+    // This avoids npx.cmd and cmd.exe, which can throw spawn EINVAL on Windows.
+    const child = spawn(process.execPath, [REMOTION_CLI, ...remotionArgs], {
       cwd: PROJECT_DIR,
       stdio: ["ignore", "pipe", "pipe"],
+      windowsHide: true,
     });
     const onOutput = (chunk) => {
       const text = chunk.toString();
       job.log = `${job.log}${text}`.slice(-12000);
       const rendered = [...text.matchAll(/Rendered (\d+)\/(\d+)/g)].at(-1);
       if (rendered) {
-        job.progress = Math.round((Number(rendered[1]) / Number(rendered[2])) * 100);
+        job.progress = Math.round(
+          (Number(rendered[1]) / Number(rendered[2])) * 100,
+        );
       }
     };
     child.stdout.on("data", onOutput);
     child.stderr.on("data", onOutput);
-    child.on("error", reject);
+    child.on("error", (error) => {
+      job.log = `${job.log}\nCould not start Remotion: ${error.message}`;
+      reject(error);
+    });
     child.on("close", (code) =>
-      code === 0 ? resolve() : reject(new Error(`Renderer exited with code ${code}`)),
+      code === 0
+        ? resolve()
+        : reject(new Error(`Renderer exited with code ${code}`)),
     );
   });
 
@@ -78,19 +95,41 @@ const startRender = async (job, payload) => {
   if (payload.format === "trailer") {
     const output = path.join(jobDir, "trailer.mp4");
     await run(
-      ["remotion", "render", ...common, "PixelPickedTrailer", output, "--props", propsPath, "--overwrite"],
+      [
+        "remotion",
+        "render",
+        ...common,
+        "PixelPickedTrailer",
+        output,
+        "--props",
+        propsPath,
+        "--overwrite",
+      ],
       job,
     );
     job.outputs = [`/renders/${job.id}/trailer.mp4`];
   } else if (payload.format === "top3") {
     const output = path.join(jobDir, "top-3-games.mp4");
     await run(
-      ["remotion", "render", ...common, "Scene2B-GameOfWeek", output, "--props", propsPath, "--overwrite"],
+      [
+        "remotion",
+        "render",
+        ...common,
+        "Scene2B-GameOfWeek",
+        output,
+        "--props",
+        propsPath,
+        "--overwrite",
+      ],
       job,
     );
     job.outputs = [`/renders/${job.id}/top-3-games.mp4`];
   } else if (payload.format === "carousel") {
-    const slides = [payload.props.hookSlide, ...(payload.props.contentSlides || []), payload.props.ctaSlide];
+    const slides = [
+      payload.props.hookSlide,
+      ...(payload.props.contentSlides || []),
+      payload.props.ctaSlide,
+    ];
     const duration = Number(payload.props.slideDuration || 180);
     job.outputs = [];
     for (let index = 0; index < slides.length; index += 1) {
@@ -99,7 +138,18 @@ const startRender = async (job, payload) => {
       const output = path.join(jobDir, filename);
       const frame = index * duration + Math.floor(duration / 2);
       await run(
-        ["remotion", "still", ...common, "BisonAttack-InstagramCarousel", output, "--props", propsPath, "--frame", String(frame), "--overwrite"],
+        [
+          "remotion",
+          "still",
+          ...common,
+          "BisonAttack-InstagramCarousel",
+          output,
+          "--props",
+          propsPath,
+          "--frame",
+          String(frame),
+          "--overwrite",
+        ],
         job,
       );
       job.outputs.push(`/renders/${job.id}/${filename}`);
@@ -107,7 +157,18 @@ const startRender = async (job, payload) => {
   } else if (payload.format === "launch") {
     const output = path.join(jobDir, "launch-campaign.png");
     await run(
-      ["remotion", "still", ...common, "PixelPicked-Top3-Story", output, "--props", propsPath, "--frame", "0", "--overwrite"],
+      [
+        "remotion",
+        "still",
+        ...common,
+        "PixelPicked-Top3-Story",
+        output,
+        "--props",
+        propsPath,
+        "--frame",
+        "0",
+        "--overwrite",
+      ],
       job,
     );
     job.outputs = [`/renders/${job.id}/launch-campaign.png`];
@@ -123,7 +184,9 @@ const serveFile = async (res, filePath) => {
   try {
     const body = await readFile(filePath);
     res.writeHead(200, {
-      "Content-Type": mimeTypes[path.extname(filePath).toLowerCase()] || "application/octet-stream",
+      "Content-Type":
+        mimeTypes[path.extname(filePath).toLowerCase()] ||
+        "application/octet-stream",
       "Cache-Control": "no-store",
     });
     res.end(body);
@@ -133,7 +196,10 @@ const serveFile = async (res, filePath) => {
 };
 
 const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
+  const url = new URL(
+    req.url || "/",
+    `http://${req.headers.host || "localhost"}`,
+  );
 
   if (req.method === "POST" && url.pathname === "/api/upload") {
     try {
@@ -152,8 +218,14 @@ const server = http.createServer(async (req, res) => {
       const ext = path.extname(originalName).toLowerCase();
       const base = safeName(path.basename(originalName, ext));
       const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${base}${ext}`;
-      await writeFile(path.join(UPLOAD_DIR, filename), Buffer.from(await file.arrayBuffer()));
-      return sendJson(res, 200, { src: `/uploads/${filename}`, name: originalName });
+      await writeFile(
+        path.join(UPLOAD_DIR, filename),
+        Buffer.from(await file.arrayBuffer()),
+      );
+      return sendJson(res, 200, {
+        src: `/uploads/${filename}`,
+        name: originalName,
+      });
     } catch (error) {
       return sendJson(res, 500, { error: error.message });
     }
@@ -163,7 +235,13 @@ const server = http.createServer(async (req, res) => {
     try {
       const payload = await parseJson(req);
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      const job = { id, status: "rendering", progress: 0, log: "", outputs: [] };
+      const job = {
+        id,
+        status: "rendering",
+        progress: 0,
+        log: "",
+        outputs: [],
+      };
       jobs.set(id, job);
       startRender(job, payload).catch((error) => {
         job.status = "error";
